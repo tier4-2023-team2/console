@@ -26,6 +26,10 @@ export default function Lidar() {
   const [preprocessor_src, set_preprocessor_src] = React.useState("");
   const [preprocessor_src_idx, set_preprocessor_src_idx] = React.useState(0);
 
+
+  const [localization_src, set_localization_src] = React.useState("");
+  const [localization_src_idx, set_localization_src_idx] = React.useState(0);
+
   const convert_lidar_arg_data = (arg_raw) => {
     set_args(arg_raw.map((ele) => {
       return {
@@ -66,7 +70,11 @@ export default function Lidar() {
     set_namespace(response.data.launch_json.launch.group["push-ros-namespace"]["_attributes"]["namespace"])
 
     set_preprocessor_src(response.data.preprocessor_src)
-    set_preprocessor_src_idx(response.data.start_line_idx)
+    set_preprocessor_src_idx(response.data.preprocessor_src_start_idx)
+
+
+    set_localization_src(response.data.localization_src)
+    set_localization_src_idx(response.data.localization_src_start_idx)
 
   };
 
@@ -82,15 +90,15 @@ export default function Lidar() {
     <>
       <Box display={"flex"}>
         <Typography variant='h4'>
-          LiDAR
+          LiDAR(read only)
         </Typography>
         <Tooltip title={`このページではLiDAR設定ファイル状況の確認ができます`}>
           <InfoIcon />
         </Tooltip>
       </Box>
-      <Box display={"flex"}>
+      {/* <Box display={"flex"}>
         description
-      </Box>
+      </Box> */}
       <Divider />
       <Box sx={{ ml: 2 }}>
         <Box>
@@ -200,9 +208,7 @@ export default function Lidar() {
             <Tooltip title={`"input_topics"にconcatするLiDARのトピックが設定されてるか確認してください`}>
               <InfoIcon />
             </Tooltip>
-
           </Box>
-
 
           <CodeBlock
             text={preprocessor_src}
@@ -210,9 +216,27 @@ export default function Lidar() {
             showLineNumbers={true}
             startingLineNumber={preprocessor_src_idx}
             wrapLines
-
           ></CodeBlock>
+        </Box>
 
+
+        <Box>
+          <Box display={"flex"}>
+            <Typography variant='h5'>
+              localization.launch.xmlの設定状況
+            </Typography>
+            {/* <Tooltip title={`"input_topics"にconcatするLiDARのトピックが設定されてるか確認してください`}>
+              <InfoIcon />
+            </Tooltip> */}
+          </Box>
+
+          <CodeBlock
+            text={localization_src}
+            language={"xml"}
+            showLineNumbers={true}
+            startingLineNumber={localization_src_idx}
+            wrapLines
+          ></CodeBlock>
         </Box>
       </Box>
     </>

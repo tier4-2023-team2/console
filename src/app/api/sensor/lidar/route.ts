@@ -44,10 +44,45 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
             }
         }
 
+        const localization_launch_path = `${process.env.workspace}/src/universe/autoware.universe/launch/tier4_localization_launch/launch/localization.launch.xml`
+
+        const liner_l = new lineByLine(localization_launch_path);
+        state = 1;
+        let licalization = "";
+        let localization_start_line_idx = 1;
+        idx = 0;
+
+        while (line = liner_l.next()) {
+            idx++;
+            const tmp_str = line.toString('ascii');
+            switch (state) {
+                // case 0:
+                //     if (!!tmp_str.match(/concat_component/)) {
+                //         state = 1;
+                //         localization_start_line_idx = idx;
+                //         licalization += `${line}\n`;
+                //     }
+                //     break;
+                case 1:
+                    licalization += `${line}\n`;
+                    if (!!tmp_str.match(/localization module/)) {
+                        state = 2;
+                    }
+                    break;
+
+            }
+            if (state === 2) {
+                liner_l.close();
+                break;
+            }
+        }
+
         return NextResponse.json({
             launch_json: JSON.parse(json),
             preprocessor_src: preprocessor_src,
-            start_line_idx: start_line_idx
+            preprocessor_src_start_idx: start_line_idx,
+            localization_src: licalization,
+            localization_src_start_idx: localization_start_line_idx
         });
     } catch (e) {
         return NextResponse.json({

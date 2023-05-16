@@ -45,11 +45,11 @@ export default function DenseAppBar({ appbar_height, ws_directory }) {
       padding: theme.spacing(1, 1, 1, 0),
       paddingLeft: `calc(1em + ${theme.spacing(4)})`,
       transition: theme.transitions.create('width'),
-      width: '300px',
+      width: '600px',
       [theme.breakpoints.up('sm')]: {
-        width: '300px',
+        width: '600px',
         '&:focus': {
-          width: '300pxch',
+          width: '600pxch',
         },
       },
     },
@@ -75,7 +75,7 @@ export default function DenseAppBar({ appbar_height, ws_directory }) {
           >
             Console app
           </Typography>
-          <Search>
+          <Search sx={{ width: 600 }}>
             <SearchIconWrapper>
               <FolderIcon />
             </SearchIconWrapper>
@@ -83,6 +83,7 @@ export default function DenseAppBar({ appbar_height, ws_directory }) {
               placeholder="workspace: "
               inputProps={{ 'aria-label': 'search' }}
               value={ws_directory}
+              sx={{ width: 600 }}
             />
           </Search>
           <Box sx={{ pl: 3 }}>
