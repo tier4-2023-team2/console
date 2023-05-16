@@ -55,8 +55,8 @@ export default function DenseAppBar({ appbar_height, ws_directory }) {
     },
   }));
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <Box sx={{ flexGrow: 1, height: appbar_height }} >
+      <AppBar position="static" sx={{ height: appbar_height }}>
         <Toolbar variant="dense" sx={{ height: appbar_height }}>
           <IconButton
             size="large"

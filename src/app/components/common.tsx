@@ -8,6 +8,7 @@ export const getWindowDimensions = () => {
 }
 
 export const APPBAR_HEIGHT: Number = 68;
+export const APPBAR_HEIGHT_OFFSET_Y: Number = 5;
 export const STATIC_COMPONENT_SIZE: any = {
     appbar: {
         width: null,

@@ -15,6 +15,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import Collapse from '@mui/material/Collapse';
 import StarBorder from '@mui/icons-material/StarBorder';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import { APPBAR_HEIGHT_OFFSET_Y } from './common';
 
 export default function BasicList({ static_component_size, window_size }) {
     const [open_sensor, setOpen] = React.useState(true);
@@ -26,7 +27,7 @@ export default function BasicList({ static_component_size, window_size }) {
         <Box sx={{
             width: '100%',
             bgcolor: 'background.paper',
-            height: window_size.height - static_component_size.appbar.height
+            height: window_size.height - static_component_size.appbar.height - APPBAR_HEIGHT_OFFSET_Y
         }}>
             <List
                 sx={{ width: '100%', bgcolor: 'background.paper' }}

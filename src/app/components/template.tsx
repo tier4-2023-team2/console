@@ -6,10 +6,11 @@ import DenseAppBar from "./appbar";
 import BasicList from "./sidebar";
 import axios from "axios";
 import {
-  APPBAR_HEIGHT,
-  STATIC_COMPONENT_SIZE,
-  getWindowDimensions,
-  DEFAULT_SYSTEM_CONF
+    APPBAR_HEIGHT,
+    STATIC_COMPONENT_SIZE,
+    getWindowDimensions,
+    DEFAULT_SYSTEM_CONF,
+    APPBAR_HEIGHT_OFFSET_Y
 } from "~/app/components/common";
 
 export default function Template({ children }) {
@@ -41,12 +42,22 @@ export default function Template({ children }) {
     }, []);
     return (<>
         <DenseAppBar appbar_height={APPBAR_HEIGHT} ws_directory={system_config.workspace} />
-        <Box sx={{ display: "flex", width: "100%", height: `${window_size.height - APPBAR_HEIGHT}px` }} >
+        <Box
+            sx={{
+                mt: 0,
+                py: 0,
+                display: "flex",
+                width: "100%",
+                height: `${window_size.height - APPBAR_HEIGHT}px`
+            }} >
             <Grid container spacing={1} sx={{ height: "100%" }}>
                 <Grid item xs={2}>
                     <BasicList static_component_size={STATIC_COMPONENT_SIZE} window_size={window_size} />
                 </Grid>
-                <Grid item xs={10} sx={{ height: "100%" }}>
+                <Grid item xs={10} sx={{
+                    height: "100%",
+                    overflowY: "auto",
+                }}>
                     {children}
                 </Grid>
             </Grid >
