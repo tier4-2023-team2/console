@@ -37,7 +37,7 @@ export default function BasicList({ static_component_size, window_size }) {
                     <ListItemIcon>
                         <SendIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Dashboard" />
+                    <ListItemText primary="System" />
                 </ListItemButton>
                 <ListItemButton href="/build">
                     <ListItemIcon>

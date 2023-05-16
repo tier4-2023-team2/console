@@ -94,20 +94,19 @@ export default function Build() {
                     }}
                   />
                 </Grid> */}
-                <Grid item xs={7}>
+                <Grid item xs={6}>
                   <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 450 }} aria-label="simple table">
+                    <Table aria-label="simple table">
                       <TableHead>
                         <TableRow>
                           <TableCell>Param</TableCell>
                           <TableCell>Value</TableCell>
-                          <TableCell>Unit</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {Object.keys(vehicle_data).map((ele) => {
+                        {Object.keys(vehicle_data).map((ele, idx) => {
                           return (
-                            <TableRow sx={{ m: 0, p: 0 }}>
+                            <TableRow key={`key_${idx}`} sx={{ m: 0, p: 0 }}>
                               <TableCell sx={{ m: 0, p: 0 }}>{ele}</TableCell>
                               <TableCell sx={{ m: 0, p: 0 }}>
                                 <TextField margin="dense"
@@ -124,10 +123,12 @@ export default function Build() {
                             </TableRow>
                           )
                         })}
-
                       </TableBody>
                     </Table>
                   </TableContainer>
+                </Grid>
+                <Grid item xs={6}>
+                  Three.jsで図を作って描画する
                 </Grid>
               </Grid>
             </Card>
