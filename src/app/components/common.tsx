@@ -14,3 +14,11 @@ export const STATIC_COMPONENT_SIZE: any = {
         height: APPBAR_HEIGHT
     }
 }
+
+export const DEFAULT_SYSTEM_CONF: any = {
+    workspace: "",
+    vehicle_model: "",
+    sensor_model: "",
+    launch_prefix: "",
+    launch_suffix: "",
+}

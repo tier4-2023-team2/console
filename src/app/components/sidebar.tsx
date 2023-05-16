@@ -60,7 +60,7 @@ export default function BasicList({ static_component_size, window_size }) {
                 </ListItemButton>
                 <Collapse in={open_sensor} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItemButton sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }} href="/sensor/lidar">
                             <ListItemIcon>
                                 <StarBorder />
                             </ListItemIcon>

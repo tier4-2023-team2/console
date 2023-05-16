@@ -62,76 +62,62 @@ export default function Build() {
     get_build_data();
   }, []);
 
-  // React.useEffect(() => {
-  //   console.log(build_result_data)
-  // }, [build_result_data])
-
   return (
     <>
-      <DenseAppBar appbar_height={APPBAR_HEIGHT} ws_directory={ws_directory} />
-      <Box sx={{ display: "flex", width: "100%", height: `${window_size.height - APPBAR_HEIGHT}px` }} >
-        <Grid container spacing={1} sx={{ height: "100%" }}>
-          <Grid item xs={2}>
-            <BasicList static_component_size={STATIC_COMPONENT_SIZE} window_size={window_size} />
-          </Grid>
-          <Grid item xs={10} sx={{ height: "100%" }}>
-            <Card sx={{ height: "100%" }}>
-              <Typography variant='h4'>Build Result Console</Typography>
-              <Divider sx={{ pb: 1 }}></Divider>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                  <TableBody>
-                    <TableRow >
-                      <TableCell>latest build date</TableCell>
-                      <TableCell>
-                        <div>{(dayjs(build_result_data.build_date).locale(locale).format())}</div>
-                        {/* 日付（yyyyMMdd hh:mm:ss）。ただし、表示方法はlocalizeの必要あり */}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>release build check</TableCell>
-                      <TableCell>
-                        {build_result_data.no_release_package.map((ele, idx) => {
-                          return (<li key={`no_release_package_${idx}`}>{ele}</li>);
-                        })}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>--symlink-install check</TableCell>
+      <Card sx={{ height: "100%" }}>
+        <Typography variant='h4'>Build Result Console</Typography>
+        <Divider sx={{ pb: 1 }}></Divider>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableBody>
+              <TableRow >
+                <TableCell>latest build date</TableCell>
+                <TableCell>
+                  <div>{(dayjs(build_result_data.build_date).locale(locale).format())}</div>
+                  {/* 日付（yyyyMMdd hh:mm:ss）。ただし、表示方法はlocalizeの必要あり */}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>release build check</TableCell>
+                <TableCell>
+                  {build_result_data.no_release_package.map((ele, idx) => {
+                    return (<li key={`no_release_package_${idx}`}>{ele}</li>);
+                  })}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>--symlink-install check</TableCell>
 
-                      <TableCell>
-                        {build_result_data.no_symlink_install_package.map((ele, idx) => {
-                          return (<li key={`no_symlink_install_package_${idx}`}>{ele}</li>);
-                        })}
-                      </TableCell>
-                    </TableRow>
+                <TableCell>
+                  {build_result_data.no_symlink_install_package.map((ele, idx) => {
+                    return (<li key={`no_symlink_install_package_${idx}`}>{ele}</li>);
+                  })}
+                </TableCell>
+              </TableRow>
 
-                    <TableRow>
-                      <TableCell>build error/warn log </TableCell>
-                      <TableCell>
-                        {/* {JSON.stringify(build_result_data.warn_list, null, "\t")} */}
-                        <div> {build_result_data.file_name}で警告かエラーが出ているpackageリスト</div>
-                        {Object.keys(build_result_data.warn_list).map((ele, idx) => {
+              <TableRow>
+                <TableCell>build error/warn log </TableCell>
+                <TableCell>
+                  {/* {JSON.stringify(build_result_data.warn_list, null, "\t")} */}
+                  <div> {build_result_data.file_name}で警告かエラーが出ているpackageリスト</div>
+                  {Object.keys(build_result_data.warn_list).map((ele, idx) => {
 
-                          return (<div key={`warn_${idx}`} >
-                            <li>
-                              {ele}
-                              {/* {JSON.stringify(build_result_data.warn_list[ele])} */}
-                            </li>
-                          </div>);
-                        })}
+                    return (<div key={`warn_${idx}`} >
+                      <li>
+                        {ele}
+                        {/* {JSON.stringify(build_result_data.warn_list[ele])} */}
+                      </li>
+                    </div>);
+                  })}
 
-                      </TableCell>
-                    </TableRow>
+                </TableCell>
+              </TableRow>
 
-                  </TableBody>
-                </Table>
-              </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-            </Card>
-          </Grid>
-        </Grid>
-      </Box >
+      </Card>
     </>
   );
 }

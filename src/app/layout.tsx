@@ -1,6 +1,7 @@
-import DenseAppBar from './components/appbar';
+import * as React from 'react';
 import './globals.css'
 import { Inter } from 'next/font/google'
+import Template from './components/template';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,20 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* <DenseAppBar appbar_height={APPBAR_HEIGHT} ws_directory={ws_directory} />
-
-        <Box sx={{ display: "flex", width: "100%", height: `${window_size.height - APPBAR_HEIGHT}px` }} >
-          <Grid container spacing={1} sx={{ height: "100%" }}>
-            <Grid item xs={2}>
-              <BasicList static_component_size={STATIC_COMPONENT_SIZE} window_size={window_size} />
-            </Grid>
-            <Grid item xs={10} sx={{ height: "100%" }}>
-              {children}
-            </Grid>
-          </Grid >
-        </Box > */}
-
-        {children}
+        <Template children={children}/>
       </body>
     </html>
   )
