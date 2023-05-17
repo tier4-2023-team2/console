@@ -15,7 +15,6 @@ import {
 
 export default function Template({ children }) {
     const [system_config, set_system_config] = React.useState(DEFAULT_SYSTEM_CONF);
-    const [ws_directory, set_ws_directory] = React.useState("");
     const [window_size, set_window_size] = React.useState({
         width: 500,
         height: 900
@@ -41,26 +40,31 @@ export default function Template({ children }) {
         get_system_data();
     }, []);
     return (<>
-        <DenseAppBar appbar_height={APPBAR_HEIGHT} ws_directory={system_config.workspace} />
-        <Box
-            sx={{
-                mt: 0,
-                py: 0,
-                display: "flex",
-                width: "100%",
-                height: `${window_size.height - APPBAR_HEIGHT}px`
-            }} >
-            <Grid container spacing={1} sx={{ height: "100%" }}>
-                <Grid item xs={2}>
-                    <BasicList static_component_size={STATIC_COMPONENT_SIZE} window_size={window_size} />
-                </Grid>
-                <Grid item xs={10} sx={{
-                    height: "100%",
-                    overflowY: "auto",
-                }}>
-                    {children}
-                </Grid>
-            </Grid >
-        </Box >
+        <Box sx={{
+            width: "100%",
+            height: `${window_size.height}px`,
+            overflowY: "hidden"
+        }} >
+            <DenseAppBar appbar_height={APPBAR_HEIGHT} ws_directory={system_config.workspace} />
+            <Box
+                sx={{
+                    pt: 1,
+                    display: "flex",
+                    width: "100%",
+                    height: `${window_size.height - APPBAR_HEIGHT - 0}px`
+                }} >
+                <Grid container spacing={1} sx={{ height: "100%" }}>
+                    <Grid item xs={2}>
+                        <BasicList static_component_size={STATIC_COMPONENT_SIZE} window_size={window_size} />
+                    </Grid>
+                    <Grid item xs={10} sx={{
+                        height: "100%",
+                        overflowY: "auto",
+                    }}>
+                        {children}
+                    </Grid>
+                </Grid >
+            </Box >
+        </Box>
     </>)
 }

@@ -225,14 +225,12 @@ export default function Lidar() {
             <Typography variant='h5'>
               localization.launch.xmlの設定状況
             </Typography>
-            {/* <Tooltip title={`"input_topics"にconcatするLiDARのトピックが設定されてるか確認してください`}>
-              <InfoIcon />
-            </Tooltip> */}
           </Box>
 
           <CodeBlock
             text={localization_src}
-            language={"xml"}
+            language={"html"} 
+            // language={"xml"} 
             showLineNumbers={true}
             startingLineNumber={localization_src_idx}
             wrapLines
