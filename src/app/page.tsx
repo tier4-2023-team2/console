@@ -133,7 +133,7 @@ export default function Home() {
         </Box>
 
         {/* <li> vehicle_id: </li> */}
-        <Button onClick={update_system_data}> updata </Button>
+        <Button onClick={update_system_data}> update </Button>
 
         <Divider></Divider>
         <div>起動スクリプト</div>
