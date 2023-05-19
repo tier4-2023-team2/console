@@ -1,24 +1,15 @@
 "use client"
 import * as React from 'react';
-
-import DenseAppBar from '~/app/components/appbar';
-import BasicList from '~/app/components/sidebar';
 import { Card, Box, Grid, Typography, Divider } from '@mui/material';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import dayjs from 'dayjs';
 
-import {
-  APPBAR_HEIGHT,
-  STATIC_COMPONENT_SIZE,
-  getWindowDimensions
-} from "~/app/components/common";
 import axios from 'axios';
 
 
@@ -32,22 +23,8 @@ const DEFAULT_BUILD_DATA = {
 }
 
 export default function Build() {
-  const [ws_directory, set_ws_directory] = React.useState("~/integ_ws/autoware");
   const [build_result_data, set_build_result_data] = React.useState(DEFAULT_BUILD_DATA);
-  const [window_size, set_window_size] = React.useState({
-    width: 500,
-    height: 900
-  });
   const [locale, set_locale] = React.useState(dayjs.locale());
-
-  React.useEffect(() => {
-    set_window_size(getWindowDimensions());
-    const onResize = (evt: Event) => {
-      set_window_size(getWindowDimensions());
-    }
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   const get_build_data = async () => {
     const response = await axios.get('/api/build', {

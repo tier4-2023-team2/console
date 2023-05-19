@@ -81,11 +81,17 @@ export default function BasicList({ static_component_size, window_size }) {
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <ListItemButton href="/">
+                <ListItemButton href="/tf">
                     <ListItemIcon>
                         <DraftsIcon />
                     </ListItemIcon>
                     <ListItemText primary="TF" />
+                </ListItemButton>
+                <ListItemButton href="/">
+                    <ListItemIcon>
+                        <DraftsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Launcher" />
                 </ListItemButton>
             </List>
         </Box >
