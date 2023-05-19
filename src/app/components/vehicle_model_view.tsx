@@ -2,10 +2,11 @@
 
 import { Box } from "@mui/material";
 
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { DoubleSide } from 'three';
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from "three"
+import { useRef } from "react";
 
 
 //  {/* 本来 */}
@@ -209,10 +210,7 @@ export const Vehicle = ({ vehicle_data }) => {
 
 export default function VehicleModelView({ vehicle_data }) {
     return (<>
-        <Box> Three.jsで図を作って描画する</Box>
-        <Box> 青:x, 橙:y , 緑:z</Box>
-        <Box> 前輪：１輪 or ２輪 ( TODO: ラジオボタンで切り替え)</Box>
-        <Box sx={{ height: "500px" }}>
+        <Box sx={{ height: "500px", border: "solid" }}>
             {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
                     {/* <axesHelper args={[3]} /> */}
@@ -227,4 +225,64 @@ export default function VehicleModelView({ vehicle_data }) {
         </Box>
     </>)
 
+}
+
+
+function Cube({ parents, child }) {
+    const cubeRef = useRef();
+
+    useFrame(() => {
+        updateTransforms();
+    });
+
+    function updateTransforms() {
+
+        const joint_list = [...parents, child];
+        for (let i = 0; i < joint_list.length - 1; i++) {
+            const currentJoint = joint_list[i];
+            const nextJoint = joint_list[i + 1];
+
+            const position = new THREE.Vector3(currentJoint.y, currentJoint.z, currentJoint.x);
+            const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+                currentJoint.pitch,
+                currentJoint.yaw,
+                currentJoint.roll,
+                'YZX'
+            ));
+
+            // リンクの座標変換を適用
+            cubeRef.current.position.copy(position);
+            cubeRef.current.quaternion.copy(quaternion);
+
+            // 次のジョイントまでの変換行列を計算
+            const nextPosition = new THREE.Vector3(nextJoint.y, nextJoint.z, nextJoint.x);
+            const nextQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+                nextJoint.pitch,
+                nextJoint.yaw,
+                nextJoint.roll,
+                'YZX'
+            ));
+
+            const transformMatrix = new THREE.Matrix4();
+            transformMatrix.compose(nextPosition, nextQuaternion, new THREE.Vector3(1, 1, 1));
+
+            // 次のリンクの座標変換を適用
+            cubeRef.current.applyMatrix4(transformMatrix);
+        }
+
+    }
+
+    return (
+        <mesh ref={cubeRef}>
+            <boxGeometry args={[0.1, 0.1, 0.1]} />
+            <meshBasicMaterial color={0x00ff00} />
+        </mesh>
+    );
+}
+
+
+export function Sensor({ parents, child }) {
+    return (<>
+        <Cube parents={parents} child={child} />
+    </>);
 }
