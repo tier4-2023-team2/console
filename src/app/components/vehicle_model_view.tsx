@@ -2,9 +2,10 @@
 
 import { Box } from "@mui/material";
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { DoubleSide } from 'three';
 import { OrbitControls } from '@react-three/drei'
+import * as THREE from "three"
 
 
 //  {/* 本来 */}
@@ -18,6 +19,36 @@ import { OrbitControls } from '@react-three/drei'
 //   {/* args = {[height(y), width(x), depth(z)]} */}
 //   {/* rotation = {[pitch, roll, yaw]} */}
 //   {/* axis ={b: x, r: y, g: z} */}
+
+export const AxisHelper = ({ color, direction, length }) => {
+    const { scene } = useThree();
+
+    const normalizedDirection = direction.normalize();
+    const arrowHeadLength = length * 0.05;
+
+    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+    const lineMaterial = new THREE.LineBasicMaterial({ color });
+    const line = new THREE.Line(lineGeometry, lineMaterial);
+
+    // scene.add(arrowMesh);
+    scene.add(line);
+
+    return null;
+};
+
+export const MyAxes = () => {
+    const axis_length = 3;
+    return (<>
+        <AxisHelper color="red" direction={new THREE.Vector3(0, 0, 1)} length={axis_length} />
+        <AxisHelper color="green" direction={new THREE.Vector3(1, 0, 0)} length={axis_length} />
+        <AxisHelper color="blue" direction={new THREE.Vector3(0, 1, 0)} length={axis_length} />
+    </>)
+}
 
 export const VehicleBody = ({ vehicle_data }) => {
     if (vehicle_data === {}) {
@@ -184,8 +215,9 @@ export default function VehicleModelView({ vehicle_data }) {
         <Box sx={{ height: "500px" }}>
             {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
-                    <axesHelper args={[3]} />
-                    <gridHelper args={[5, 100]} />
+                    {/* <axesHelper args={[3]} /> */}
+                    <MyAxes />
+                    <gridHelper args={[5, 10]} />
                     <OrbitControls />
                     <ambientLight intensity={0.1} />
                     <Vehicle vehicle_data={vehicle_data} />
