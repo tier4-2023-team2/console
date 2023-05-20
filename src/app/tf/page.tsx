@@ -104,26 +104,58 @@ export default function TF() {
       if (idx !== i) {
         return ele;
       } else {
-        return {
-          ...ele,
-          transform: {
-            ...ele.transform,
-            [prop]: parseFloat(val)
+        if (j !== undefined) {
+          return {
+            ...ele,
+            children: ele.children.map((ele2, idx2) => {
+              if (idx2 !== j) {
+                return ele2;
+              }
+              return {
+                ...ele2,
+                transform: {
+                  ...ele2.transform,
+                  [prop]: parseFloat(val)
+                }
+              }
+            })
+          }
+        } else {
+          return {
+            ...ele,
+            transform: {
+              ...ele.transform,
+              [prop]: parseFloat(val)
+            }
           }
         }
       }
     }));
   }
 
-
   const update_check = (val, i, j, prop) => {
     set_sensor_link_map(sensor_link_map.map((ele, idx) => {
       if (idx !== i) {
         return ele;
       } else {
-        return {
-          ...ele,
-          view: val
+        if (j !== undefined) {
+          return {
+            ...ele,
+            children: ele.children.map((ele2, idx2) => {
+              if (idx2 !== j) {
+                return ele2;
+              }
+              return {
+                ...ele2,
+                view: val
+              }
+            })
+          }
+        } else {
+          return {
+            ...ele,
+            view: val
+          }
         }
       }
     }));
@@ -186,7 +218,7 @@ export default function TF() {
     <Grid container suppressHydrationWarning={true}>
       <Grid>
         <Box display="flex">
-          <Box sx={{ width: 900 }}>
+          <Box sx={{ width: 900, height: 800, overflowY: "scroll" }} >
             <TableContainer component={Paper}>
               <Table aria-label="simple table" size="small" >
                 <TableHead>
@@ -266,7 +298,7 @@ export default function TF() {
                   {sensor_link_map.map((ele, idx) => {
                     if (ele.children === undefined) {
                       if (ele.view) {
-                        return <Sensor parents={[BASE_LINK]} child={ele.transform} />
+                        return <Sensor parents={[BASE_LINK]} child={ele.transform} frame_id={ele.frame_id} />
                       } else {
                         return (<></>)
                       }
@@ -275,7 +307,7 @@ export default function TF() {
                       <Sensor parents={[BASE_LINK]} child={ele} />
                       {ele.children.map((ele2) => {
                         if (ele2.view) {
-                          return (<Sensor parents={[BASE_LINK, ele.transform]} child={ele2.transform} />);
+                          return (<Sensor parents={[BASE_LINK, ele.transform]} child={ele2.transform} frame_id={ele2.frame_id} />);
                         } else {
                           return (<></>)
                         }

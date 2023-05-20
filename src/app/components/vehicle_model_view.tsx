@@ -7,6 +7,7 @@ import { DoubleSide } from 'three';
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from "three"
 import { useRef } from "react";
+import { useEffect } from "react";
 
 
 //  {/* 本来 */}
@@ -228,8 +229,22 @@ export default function VehicleModelView({ vehicle_data }) {
 }
 
 
-function Cube({ parents, child }) {
+function Cube({ parents, child, frame_id }) {
     const cubeRef = useRef();
+
+    // useEffect(() => {
+    //     // マウスオーバー時のイベントハンドラを追加
+    //     const handleMouseOver = () => {
+    //         console.log('Mouse over event');
+    //         // ここで好きな処理を行います
+    //     };
+
+    //     cubeRef.current.addEventListener('mouseover', handleMouseOver);
+    //     return () => {
+    //         cubeRef.current.removeEventListener('mouseover', handleMouseOver);
+    //     };
+    // });
+
 
     useFrame(() => {
         updateTransforms();
@@ -273,16 +288,21 @@ function Cube({ parents, child }) {
     }
 
     return (
-        <mesh ref={cubeRef}>
+        <mesh ref={cubeRef}
+            onClick={() => {
+                console.log(frame_id)
+            }}
+        >
             <boxGeometry args={[0.1, 0.1, 0.1]} />
             <meshBasicMaterial color={0x00ff00} />
+            onClick={() => setActive(!active)}
         </mesh>
     );
 }
 
 
-export function Sensor({ parents, child }) {
+export function Sensor({ parents, child, frame_id }) {
     return (<>
-        <Cube parents={parents} child={child} />
+        <Cube parents={parents} child={child} frame_id={frame_id} />
     </>);
 }
