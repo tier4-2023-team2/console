@@ -263,7 +263,7 @@ export const MyAxes2 = ({ pos }) => {
 }
 
 
-function Cube2({ parents, child }) {
+function Cube2({ parents, child, frame_id }) {
     const cubeRef = useRef();
 
     // useEffect(() => {
@@ -330,7 +330,7 @@ function Cube2({ parents, child }) {
     return (
         <mesh ref={cubeRef}
             onClick={() => {
-                console.log(frame_id)
+                console.log(child, frame_id)
             }}
         >
             <boxGeometry args={[0.1, 0.1, 0.1]} />
@@ -343,6 +343,6 @@ function Cube2({ parents, child }) {
 
 export function Sensor({ parents, child, frame_id }) {
     return (<>
-        <Cube2 parents={parents} child={child} />
+        <Cube2 parents={parents} child={child} frame_id={frame_id} />
     </>);
 }

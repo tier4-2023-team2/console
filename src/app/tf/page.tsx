@@ -204,29 +204,31 @@ export default function TF() {
   }
 
   const TransFormCell = ({ transform, i, j }) => {
+    const xyz_color = 800;
+    const rpy_color = 500;
     return (<>
       <Box display={"flex"}>
         <Grid container>
           <Grid item xs={3}>
-            <Typography variant='h8' sx={{ color: red[800] }}>X</Typography>
-            <Typography variant='h8' sx={{ color: green[800] }}>Y</Typography>
-            <Typography variant='h8' sx={{ color: blue[800] }}>Z</Typography>
+            <Typography variant='h8' sx={{ color: red[xyz_color] }}>X</Typography>
+            <Typography variant='h8' sx={{ color: green[xyz_color] }}>Y</Typography>
+            <Typography variant='h8' sx={{ color: blue[xyz_color] }}>Z</Typography>
           </Grid>
-          <Grid item xs={3} sx={{ color: red[800] }}>  {transform.x} </Grid>
-          <Grid item xs={3} sx={{ color: green[800] }}>  {transform.y}</Grid>
-          <Grid item xs={3} sx={{ color: blue[800] }}>  {transform.z}</Grid>
+          <Grid item xs={3} sx={{ color: red[xyz_color] }}>  {transform.x} </Grid>
+          <Grid item xs={3} sx={{ color: green[xyz_color] }}>  {transform.y}</Grid>
+          <Grid item xs={3} sx={{ color: blue[xyz_color] }}>  {transform.z}</Grid>
         </Grid>
       </Box>
       <Box display={"flex"} sx={{ mt: 1 }}>
         <Grid container>
           <Grid item xs={3}>
-            <Typography variant='h8' sx={{ color: red[400] }}>R</Typography>
-            <Typography variant='h8' sx={{ color: green[400] }}>P</Typography>
-            <Typography variant='h8' sx={{ color: blue[400] }}>Y</Typography>
+            <Typography variant='h8' sx={{ color: red[rpy_color] }}>R</Typography>
+            <Typography variant='h8' sx={{ color: green[rpy_color] }}>P</Typography>
+            <Typography variant='h8' sx={{ color: blue[rpy_color] }}>Y</Typography>
           </Grid>
-          <Grid item xs={3} sx={{ color: red[400] }}>{transform.roll} </Grid>
-          <Grid item xs={3} sx={{ color: green[400] }}>{transform.pitch}</Grid>
-          <Grid item xs={3} sx={{ color: blue[400] }}>{transform.yaw}</Grid>
+          <Grid item xs={3} sx={{ color: red[rpy_color] }}>{transform.roll} </Grid>
+          <Grid item xs={3} sx={{ color: green[rpy_color] }}>{transform.pitch}</Grid>
+          <Grid item xs={3} sx={{ color: blue[rpy_color] }}>{transform.yaw}</Grid>
         </Grid>
       </Box>
     </>);
