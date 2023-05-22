@@ -1,9 +1,9 @@
 "use client"
 import { Box, Checkbox, Collapse, FormLabel, Grid, TextField, Typography } from '@mui/material';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import * as React from 'react';
-import { Ground, MyAxes, Vehicle, Sensor } from '../components/vehicle_model_view';
+import { Ground, MyAxes, Vehicle, Sensor, Rig } from '../components/vehicle_model_view';
 import axios from 'axios';
 import Link from 'next/link';
 import { Mermaid } from 'mdx-mermaid/Mermaid';
@@ -16,6 +16,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import styled from '@emotion/styled';
+import { Camera } from 'three';
+import * as THREE from "three"
 
 
 const MERMAID_HEADER = "graph TD;"
@@ -128,6 +130,12 @@ export default function TF() {
       }
     }));
   }
+
+  // function Rig({ v = new THREE.Vector3() }) {
+  //   return useFrame((state) => {
+  //     state.camera.position.lerp(v.set(state.mouse.x / 2, state.mouse.y / 2, 10), 0.05)
+  //   })
+  // };
 
   const TransFormCell = ({ transform, i, j }) => {
     return (<>
@@ -258,7 +266,9 @@ export default function TF() {
               {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
                   <MyAxes />
-                  <gridHelper args={[5, 100]} />
+                  <gridHelper args={[5, 10]} />
+                  <gridHelper args={[5, 10]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
+                  <gridHelper args={[5, 10]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} />
                   <OrbitControls />
                   <ambientLight intensity={0.1} />
                   {vehicle_view && <Vehicle vehicle_data={vehicle_data} />}
@@ -285,7 +295,7 @@ export default function TF() {
                 </Canvas>
               }
             </Box>
-            <Box>
+            {/* <Box>
               <Box>TODO:</Box>
               <Box>* UMLの図をxacroのマクロに沿ったsuffixをつける</Box>
               <Box>* 3D図側にセンサーの取り付け</Box>
@@ -293,7 +303,7 @@ export default function TF() {
               <Box>* 保存</Box>
               <Box>* テーブルからセンサーのCRUD</Box>
               <Box>* xacroファイルペースト用テキスト作成</Box>
-            </Box>
+            </Box> */}
           </Box>
         </Box>
       </Grid>

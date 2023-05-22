@@ -61,40 +61,38 @@ export const VehicleBody = ({ vehicle_data }) => {
             {/* main */}
             <mesh position={[
                 0,
-                // vehicle_data.vehicle_height / 2,
-                (vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2) / 2,
+                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
                 vehicle_data.wheel_base / 2]}>
                 <boxGeometry args={[
                     vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2,
+                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
                     vehicle_data.wheel_base,
                 ]} />
-                <meshPhongMaterial color="#000088" />
+                <meshPhongMaterial color="#000088" opacity={0.5} transparent={true} />
             </mesh>
 
             {/* rear_overhang */}
             <mesh position={[0,
-                // vehicle_data.vehicle_height / 2,
-                (vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2) / 2,
+                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
                 -vehicle_data.rear_overhang / 2]}>
                 <boxGeometry args={[
                     vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2,
+                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
                     vehicle_data.rear_overhang,
                 ]} />
-                <meshPhongMaterial color="blue" />
+                <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
             </mesh>
 
             {/* front_overhang */}
             <mesh position={[0,
-                (vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2) / 2,
+                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
                 vehicle_data.front_overhang / 2 + vehicle_data.wheel_base]}>
                 <boxGeometry args={[
                     vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2,
+                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
                     vehicle_data.front_overhang,
                 ]} />
-                <meshPhongMaterial color="blue" />
+                <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
             </mesh>
         </>
     );
@@ -108,7 +106,7 @@ export const VehicleWheel = ({ vehicle_data }) => {
     return (
         <>
             {/* rear_left */}
-            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, 0, 0]}
+            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, 0]}
                 rotation={[Math.PI / 2, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[
                     vehicle_data.wheel_radius, vehicle_data.wheel_radius,
@@ -118,7 +116,7 @@ export const VehicleWheel = ({ vehicle_data }) => {
             </mesh>
 
             {/* rear_right */}
-            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, 0, 0]}
+            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, 0]}
                 rotation={[Math.PI / 2, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[
                     vehicle_data.wheel_radius, vehicle_data.wheel_radius,
@@ -128,7 +126,7 @@ export const VehicleWheel = ({ vehicle_data }) => {
             </mesh>
 
             {/* front_left */}
-            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, 0, vehicle_data.wheel_base]}
+            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
                 rotation={[Math.PI / 2, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[
                     vehicle_data.wheel_radius, vehicle_data.wheel_radius,
@@ -138,7 +136,7 @@ export const VehicleWheel = ({ vehicle_data }) => {
             </mesh>
 
             {/* front_right */}
-            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, 0, vehicle_data.wheel_base]}
+            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
                 rotation={[Math.PI / 2, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[
                     vehicle_data.wheel_radius, vehicle_data.wheel_radius,
@@ -159,28 +157,28 @@ export const VehicleSideOverhang = ({ vehicle_data }) => {
         <>
             <mesh position={[
                 (vehicle_data.wheel_tread / 2 + vehicle_data.left_overhang / 2),
-                (vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2) / 2,
+                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
                 (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
             ]}>
                 <boxGeometry args={[
                     vehicle_data.left_overhang, //y
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2, //z
+                    vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
                     vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
                 ]} />
-                <meshPhongMaterial color="#aaaaff" />
+                <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
             </mesh>
 
             <mesh position={[
                 -(vehicle_data.wheel_tread / 2 + vehicle_data.right_overhang / 2),
-                (vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2) / 2,
+                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
                 (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
             ]}>
                 <boxGeometry args={[
                     vehicle_data.right_overhang, //y
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius / 2, //z
+                    vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
                     vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
                 ]} />
-                <meshPhongMaterial color="#aaaaff" />
+                <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
             </mesh>
         </>);
 }
@@ -213,9 +211,10 @@ export default function VehicleModelView({ vehicle_data }) {
         <Box sx={{ height: "500px", border: "solid" }}>
             {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
-                    {/* <axesHelper args={[3]} /> */}
                     <MyAxes />
-                    <gridHelper args={[5, 10]} />
+                    <gridHelper args={[10, 20]} />
+                    <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
+                    <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} />
                     <OrbitControls />
                     <ambientLight intensity={0.1} />
                     <Vehicle vehicle_data={vehicle_data} />
@@ -227,8 +226,43 @@ export default function VehicleModelView({ vehicle_data }) {
 
 }
 
+export const AxisHelper2 = ({ color, direction, length, pos }) => {
+    const { scene } = useThree();
+    console.log(pos)
+    const normalizedDirection = direction.normalize();
+    const arrowHeadLength = length * 0.05;
 
-function Cube({ parents, child }) {
+    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(
+        [[pos.x, pos.y, pos.z], normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+    const lineMaterial = new THREE.LineBasicMaterial({ color });
+    const line = new THREE.Line(lineGeometry, lineMaterial);
+
+    // scene.add(arrowMesh);
+    scene.add(line);
+
+    return null;
+};
+
+
+export const MyAxes2 = ({ pos }) => {
+    const axis_length = 0.3;
+    return (<>
+        {/* <AxisHelper2
+            color="red"
+            direction={new THREE.Vector3(0, 0, 1)}
+            length={axis_length}
+            pos={pos}
+        /> */}
+    </>)
+}
+
+
+function Cube2({ parents, child }) {
     const cubeRef = useRef();
 
     useFrame(() => {
@@ -238,17 +272,20 @@ function Cube({ parents, child }) {
     function updateTransforms() {
 
         const joint_list = [...parents, child];
+        let sum_roll = 0;
+        let sum_pitch = 0;
+        let sum_yaw = 0;
         for (let i = 0; i < joint_list.length - 1; i++) {
             const currentJoint = joint_list[i];
             const nextJoint = joint_list[i + 1];
-
             const position = new THREE.Vector3(currentJoint.y, currentJoint.z, currentJoint.x);
             const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
-                currentJoint.pitch,
-                currentJoint.yaw,
-                currentJoint.roll,
+                0, 0, 0,
                 'YZX'
             ));
+            sum_roll += nextJoint.roll;
+            sum_pitch += nextJoint.pitch;
+            sum_yaw += nextJoint.yaw;
 
             // リンクの座標変換を適用
             cubeRef.current.position.copy(position);
@@ -257,9 +294,7 @@ function Cube({ parents, child }) {
             // 次のジョイントまでの変換行列を計算
             const nextPosition = new THREE.Vector3(nextJoint.y, nextJoint.z, nextJoint.x);
             const nextQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
-                nextJoint.pitch,
-                nextJoint.yaw,
-                nextJoint.roll,
+                0, 0, 0,
                 'YZX'
             ));
 
@@ -268,6 +303,11 @@ function Cube({ parents, child }) {
 
             // 次のリンクの座標変換を適用
             cubeRef.current.applyMatrix4(transformMatrix);
+
+            cubeRef.current.rotateX(sum_pitch);
+            cubeRef.current.rotateY(sum_yaw);
+            cubeRef.current.rotateZ(sum_roll);
+
         }
 
     }
@@ -275,7 +315,8 @@ function Cube({ parents, child }) {
     return (
         <mesh ref={cubeRef}>
             <boxGeometry args={[0.1, 0.1, 0.1]} />
-            <meshBasicMaterial color={0x00ff00} />
+            <MyAxes2 pos={child} />
+            <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
         </mesh>
     );
 }
@@ -283,6 +324,6 @@ function Cube({ parents, child }) {
 
 export function Sensor({ parents, child }) {
     return (<>
-        <Cube parents={parents} child={child} />
+        <Cube2 parents={parents} child={child} />
     </>);
 }
