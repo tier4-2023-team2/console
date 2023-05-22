@@ -3,7 +3,7 @@ import { Box, Checkbox, Collapse, FormLabel, Grid, TextField, Typography } from 
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as React from 'react';
-import { Ground, MyAxes, Vehicle, Sensor, Rig } from '../components/vehicle_model_view';
+import { Ground, MyAxes, Vehicle, Sensor } from '../components/vehicle_model_view';
 import axios from 'axios';
 import Link from 'next/link';
 import { Mermaid } from 'mdx-mermaid/Mermaid';
@@ -18,6 +18,8 @@ import Paper from '@mui/material/Paper';
 import styled from '@emotion/styled';
 import { Camera } from 'three';
 import * as THREE from "three"
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 
 const MERMAID_HEADER = "graph TD;"
@@ -36,6 +38,7 @@ export default function TF() {
   const [vehicle_view, set_vehicle_view] = React.useState(true);
   const [sensor_link_map, set_sensor_link_map] = React.useState([]);
   const [mermaid_txt, set_mermaid_txt] = React.useState("graph TD;base_link;");
+  const [check_all, set_check_all] = useState(true);
 
   React.useEffect(() => {
     let mermaid_txt = MERMAID_HEADER;
@@ -50,6 +53,28 @@ export default function TF() {
     set_mermaid_txt(mermaid_txt);
 
   }, [sensor_link_map])
+
+
+  useEffect(() => {
+    set_sensor_link_map(sensor_link_map.map((ele) => {
+      if (ele.children === undefined) {
+        return {
+          ...ele,
+          view: check_all
+        }
+      }
+      return {
+        ...ele,
+        view: check_all,
+        children: ele.children.map((ele2) => {
+          return {
+            ...ele2,
+            view: check_all
+          }
+        })
+      }
+    }));
+  }, [check_all]);
 
   const get_vehicle_param = async () => {
     const response = await axios.get('/api/vehicle_model', {
@@ -163,12 +188,6 @@ export default function TF() {
     }));
   }
 
-  // function Rig({ v = new THREE.Vector3() }) {
-  //   return useFrame((state) => {
-  //     state.camera.position.lerp(v.set(state.mouse.x / 2, state.mouse.y / 2, 10), 0.05)
-  //   })
-  // };
-
   const TransFormCell = ({ transform, i, j }) => {
     return (<>
       <Box display={"flex"}>
@@ -237,7 +256,9 @@ export default function TF() {
                     <TableCell colSpan={3} align="center"></TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell><Checkbox checked={vehicle_view} onClick={() => { set_vehicle_view(!vehicle_view) }} /></TableCell>
+                    <TableCell>
+                      <Checkbox checked={check_all} onClick={() => { set_check_all(!check_all) }} />
+                    </TableCell>
                     <TableCell align="center">prarent</TableCell>
                     <TableCell align="center">child</TableCell>
                     <TableCell rowSpan={3} align="center">transform</TableCell>
@@ -314,7 +335,7 @@ export default function TF() {
                       }
                     }
                     return (<>
-                      <Sensor parents={[BASE_LINK]} child={ele} />
+                      {ele.view && <Sensor parents={[BASE_LINK]} child={ele.transform} frame_id={ele.frame_id} />}
                       {ele.children.map((ele2) => {
                         if (ele2.view) {
                           return (<Sensor parents={[BASE_LINK, ele.transform]} child={ele2.transform} frame_id={ele2.frame_id} />);
@@ -327,7 +348,10 @@ export default function TF() {
                 </Canvas>
               }
             </Box>
-            {/* <Box>
+            <Box>
+              <Box>
+                <Checkbox checked={vehicle_view} onClick={() => { set_vehicle_view(!vehicle_view) }} />
+              </Box>
               <Box>TODO:</Box>
               <Box>* UMLの図をxacroのマクロに沿ったsuffixをつける</Box>
               <Box>* 3D図側にセンサーの取り付け</Box>
@@ -335,7 +359,7 @@ export default function TF() {
               <Box>* 保存</Box>
               <Box>* テーブルからセンサーのCRUD</Box>
               <Box>* xacroファイルペースト用テキスト作成</Box>
-            </Box> */}
+            </Box>
           </Box>
         </Box>
       </Grid>
