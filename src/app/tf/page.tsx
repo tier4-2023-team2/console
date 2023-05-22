@@ -20,6 +20,7 @@ import { Camera } from 'three';
 import * as THREE from "three"
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { blue, green, red } from '@mui/material/colors';
 
 
 const MERMAID_HEADER = "graph TD;"
@@ -33,12 +34,26 @@ const BASE_LINK = {
   yaw: 0,
 }
 
+const DEFAULT_POSE = {
+  frame_id: "",
+  transform: {
+    x: 0,
+    y: 0,
+    z: 0,
+    roll: 0,
+    pitch: 0,
+    yaw: 0,
+  }
+}
+
+
 export default function TF() {
   const [vehicle_data, set_vehicle_data] = React.useState({});
   const [vehicle_view, set_vehicle_view] = React.useState(true);
   const [sensor_link_map, set_sensor_link_map] = React.useState([]);
   const [mermaid_txt, set_mermaid_txt] = React.useState("graph TD;base_link;");
   const [check_all, set_check_all] = useState(true);
+  const [pos_data, set_pos_data] = useState(DEFAULT_POSE);
 
   React.useEffect(() => {
     let mermaid_txt = MERMAID_HEADER;
@@ -191,41 +206,71 @@ export default function TF() {
   const TransFormCell = ({ transform, i, j }) => {
     return (<>
       <Box display={"flex"}>
+        <Grid container>
+          <Grid item xs={3}>
+            <Typography variant='h8' sx={{ color: red[800] }}>X</Typography>
+            <Typography variant='h8' sx={{ color: green[800] }}>Y</Typography>
+            <Typography variant='h8' sx={{ color: blue[800] }}>Z</Typography>
+          </Grid>
+          <Grid item xs={3} sx={{ color: red[800] }}>  {transform.x} </Grid>
+          <Grid item xs={3} sx={{ color: green[800] }}>  {transform.y}</Grid>
+          <Grid item xs={3} sx={{ color: blue[800] }}>  {transform.z}</Grid>
+        </Grid>
+      </Box>
+      <Box display={"flex"} sx={{ mt: 1 }}>
+        <Grid container>
+          <Grid item xs={3}>
+            <Typography variant='h8' sx={{ color: red[400] }}>R</Typography>
+            <Typography variant='h8' sx={{ color: green[400] }}>P</Typography>
+            <Typography variant='h8' sx={{ color: blue[400] }}>Y</Typography>
+          </Grid>
+          <Grid item xs={3} sx={{ color: red[400] }}>{transform.roll} </Grid>
+          <Grid item xs={3} sx={{ color: green[400] }}>{transform.pitch}</Grid>
+          <Grid item xs={3} sx={{ color: blue[400] }}>{transform.yaw}</Grid>
+        </Grid>
+      </Box>
+    </>);
+  }
+
+
+  const PoseForm = ({ transform }) => {
+    return (<>
+      <Box display={"flex"}>
         <TextField label={"x"} value={transform["x"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "x");
+            // update_position(evt.target.value, i, j, "x");
           }} />
         <TextField label={"y"} value={transform["y"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "y");
+            // update_position(evt.target.value, i, j, "y");
           }} />
         <TextField label={"z"} value={transform["z"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "z");
+            // update_position(evt.target.value, i, j, "z");
           }} />
       </Box>
       <Box display={"flex"} sx={{ mt: 1 }}>
         <TextField label={"roll"} value={transform["roll"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "roll");
+            // update_position(evt.target.value, i, j, "roll");
           }} />
         <TextField label={"pitch"} value={transform["pitch"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "pitch");
+            // update_position(evt.target.value, i, j, "pitch");
           }} />
         <TextField label={"yaw"} value={transform["yaw"]} size="small"
           onChange={(evt) => {
-            update_position(evt.target.value, i, j, "yaw");
+            // update_position(evt.target.value, i, j, "yaw");
           }} />
       </Box>
     </>);
   }
 
-  const GrandChild = ({ children, key_idx }) => {
+  const GrandChild = ({ children, key_idx, parent }) => {
     return (<>
       {children.map((ele, idx) => {
         return (
-          <TableRow key={`sensor_link_grandchild_${key_idx}_${idx}`}>
+          <TableRow key={`sensor_link_grandchild_${key_idx}_${idx}`} onClick={() => click_handler(ele, [...parent])}>
             <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, key_idx, idx) }} /></TableCell>
             <TableCell></TableCell>
             <TableCell>
@@ -239,6 +284,27 @@ export default function TF() {
         )
       })}
     </>);
+  }
+
+  useEffect(() => {
+    console.log(pos_data)
+  }, [pos_data])
+
+  const click_handler = (target, parents_id) => {
+    console.log(parents_id)
+    if (parents_id.length === 0) {
+      set_pos_data(sensor_link_map.find((ele, idx) => {
+        return ele.frame_id === target.frame_id;
+      }));
+    } else {
+      set_pos_data(sensor_link_map.find((ele, idx) => {
+        return parents_id.find((e) => {
+          return e === ele.frame_id;
+        });
+      }).children.find((ele) => {
+        return target.frame_id === ele.frame_id;
+      }));
+    }
   }
 
   return (<>
@@ -268,7 +334,7 @@ export default function TF() {
                   {sensor_link_map.map((ele, idx) => {
                     if (ele.children === undefined) {
                       return (
-                        <TableRow key={`sensor_link_${idx}`}>
+                        <TableRow key={`sensor_link_${idx}`} onClick={() => click_handler(ele, [])}>
                           <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, idx) }} /></TableCell>
                           <TableCell>
                             <Box>{ele.frame_id}</Box>
@@ -282,7 +348,7 @@ export default function TF() {
                     } else {
                       return (
                         <>
-                          <TableRow key={`sensor_link_${idx}`}>
+                          <TableRow key={`sensor_link_${idx}`} onClick={() => click_handler(ele, [])}>
                             <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, idx) }} /></TableCell>
                             <TableCell>
                               <Box>{ele.frame_id}</Box>
@@ -293,7 +359,7 @@ export default function TF() {
                               <TransFormCell frame_id={ele.frame_id} transform={ele.transform} i={idx} />
                             </TableCell>
                           </TableRow >
-                          <GrandChild children={ele.children} key_idx={idx} />
+                          <GrandChild children={ele.children} key_idx={idx} parent={[ele.frame_id]} />
                         </>
                       );
                     }
@@ -359,6 +425,9 @@ export default function TF() {
               <Box>* 保存</Box>
               <Box>* テーブルからセンサーのCRUD</Box>
               <Box>* xacroファイルペースト用テキスト作成</Box>
+              <Box>
+                <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} />
+              </Box>
             </Box>
           </Box>
         </Box>
