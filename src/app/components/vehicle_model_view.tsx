@@ -1,6 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, linkClasses } from "@mui/material";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { DoubleSide } from 'three';
@@ -36,7 +36,7 @@ export const AxisHelper = ({ color, direction, length }) => {
     const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
     const lineMaterial = new THREE.LineBasicMaterial({ color });
     const line = new THREE.Line(lineGeometry, lineMaterial);
-
+    line.material.linewidth = 3;
     // scene.add(arrowMesh);
     scene.add(line);
 
@@ -189,7 +189,7 @@ export const Ground = ({ vehicle_data }) => {
         return (<></>);
     }
     return (<>
-        <mesh position={[0, -vehicle_data.wheel_radius, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[
                 (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5,
                 (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5
@@ -242,6 +242,7 @@ export const AxisHelper2 = ({ color, direction, length, pos }) => {
         [[pos.x, pos.y, pos.z], normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
     const lineMaterial = new THREE.LineBasicMaterial({ color });
     const line = new THREE.Line(lineGeometry, lineMaterial);
+    line.material.linewidth = 3;
 
     // scene.add(arrowMesh);
     scene.add(line);
@@ -319,26 +320,121 @@ function Cube2({ parents, child, frame_id }) {
             // 次のリンクの座標変換を適用
             cubeRef.current.applyMatrix4(transformMatrix);
 
-            cubeRef.current.rotateX(sum_pitch);
-            cubeRef.current.rotateY(sum_yaw);
-            cubeRef.current.rotateZ(sum_roll);
+            // cubeRef.current.rotateX(sum_pitch);
+            // cubeRef.current.rotateY(sum_yaw);
+            // cubeRef.current.rotateZ(sum_roll);
 
         }
 
     }
 
     return (
-        <mesh ref={cubeRef}
-            onClick={() => {
-                console.log(child, frame_id)
-            }}
-        >
-            <boxGeometry args={[0.1, 0.1, 0.1]} />
-            <MyAxes2 pos={child} />
-            <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
-        </mesh>
+        <>
+            <mesh ref={cubeRef}
+                onClick={() => {
+                    // console.log(child, frame_id)
+                }}
+            >
+                <boxGeometry args={[0.1, 0.1, 0.1]} />
+                <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
+                <CubeAxes link={[...parents, child]} frame_id={frame_id} />
+            </mesh>
+        </>
     );
 }
+
+
+export const CubeAxisHelper = ({ color, direction, length }) => {
+    const { scene } = useThree();
+
+    const normalizedDirection = direction.normalize();
+    const arrowHeadLength = length * 0.05;
+
+    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+    const lineMaterial = new THREE.LineBasicMaterial({ color });
+    const line = new THREE.Line(lineGeometry, lineMaterial);
+    line.material.linewidth = 3;
+    // scene.add(arrowMesh);
+    scene.add(line);
+
+    return null;
+};
+
+const CubeAxes = ({ link, frame_id }) => {
+    const axisRef = useRef();
+    const length = 0.125;
+    const linewidth = 2;
+
+    useFrame(() => {
+        const roll = link.reduce((sum, ele) => {
+            return sum + ele.roll;
+        }, 0);
+        const pitch = link.reduce((sum, ele) => {
+            return sum + ele.pitch;
+        }, 0);
+        const yaw = link.reduce((sum, ele) => {
+            return sum + ele.yaw;
+        }, 0);
+        //(yaw, pitch, roll)
+        // const rotation = new THREE.Euler(0, 0, 0);
+        // const rotation = new THREE.Euler(yaw, pitch, roll);
+        const rotation = new THREE.Euler(pitch, yaw, roll);
+        // console.log(frame_id, roll, pitch, yaw);
+        axisRef.current.rotation.copy(rotation);
+    });
+    return (
+        <group ref={axisRef}>
+            <line>
+                <bufferGeometry attach="geometry"
+                    {...new THREE.BufferGeometry().setFromPoints(
+                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(length, 0, 0)])} />
+                <lineBasicMaterial color="green" attach="material" linewidth={linewidth} />
+            </line>
+            <line>
+                <bufferGeometry attach="geometry"
+                    {...new THREE.BufferGeometry().setFromPoints(
+                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, length, 0)])} />
+                <lineBasicMaterial color="blue" attach="material" linewidth={linewidth} />
+            </line>
+            <line>
+                <bufferGeometry attach="geometry"
+                    {...new THREE.BufferGeometry().setFromPoints(
+                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, length)])} />
+                <lineBasicMaterial color="red" attach="material" linewidth={linewidth} />
+            </line>
+        </group>
+    );
+};
+
+const CustomAxis = ({ direction, length, color }) => {
+    const axisRef = useRef();
+
+    useFrame(() => {
+        // メッシュの位置や向きに応じて軸を更新するために、useFrameフックを使用します
+        const mesh = axisRef.current;
+        const position = mesh.parent.position;
+        const rotation = mesh.parent.rotation;
+
+        // 向きを基本軸とした軸を作成します
+        // const axis = new THREE.Vector3(direction.x, direction.y, direction.z).normalize();
+        const axis = new THREE.Vector3(rotation.y, rotation.z, rotation.x).normalize();
+        const arrowHelper = new THREE.ArrowHelper(axis, position, length, new THREE.Color(color));
+
+        // メッシュの位置や向きに合わせて軸を配置します
+        arrowHelper.position.copy(position);
+        arrowHelper.rotation.copy(rotation);
+
+        // メッシュに軸を追加します
+        mesh.add(arrowHelper);
+    });
+
+    return <group ref={axisRef} />;
+};
 
 
 export function Sensor({ parents, child, frame_id }) {
