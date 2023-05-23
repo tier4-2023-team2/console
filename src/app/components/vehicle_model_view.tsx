@@ -320,9 +320,9 @@ function Cube2({ parents, child, frame_id }) {
             // 次のリンクの座標変換を適用
             cubeRef.current.applyMatrix4(transformMatrix);
 
-            // cubeRef.current.rotateX(sum_pitch);
-            // cubeRef.current.rotateY(sum_yaw);
-            // cubeRef.current.rotateZ(sum_roll);
+            cubeRef.current.rotateX(sum_pitch);
+            cubeRef.current.rotateY(sum_yaw);
+            cubeRef.current.rotateZ(sum_roll);
 
         }
 
@@ -381,9 +381,9 @@ const CubeAxes = ({ link, frame_id }) => {
             return sum + ele.yaw;
         }, 0);
         //(yaw, pitch, roll)
-        // const rotation = new THREE.Euler(0, 0, 0);
+        const rotation = new THREE.Euler(0, 0, 0);
         // const rotation = new THREE.Euler(yaw, pitch, roll);
-        const rotation = new THREE.Euler(pitch, yaw, roll);
+        // const rotation = new THREE.Euler(pitch, yaw, roll);
         // console.log(frame_id, roll, pitch, yaw);
         axisRef.current.rotation.copy(rotation);
     });
