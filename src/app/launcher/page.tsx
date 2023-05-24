@@ -58,7 +58,7 @@ export default function Launcher() {
               set_config_list(config_list.map((e) => {
                 if (e.configname === ele.configname) {
                   return {
-                    configname:e.configname,
+                    configname: e.configname,
                     use: evt.target.checked
                   }
                 }
