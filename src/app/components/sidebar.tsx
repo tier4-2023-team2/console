@@ -87,7 +87,7 @@ export default function BasicList({ static_component_size, window_size }) {
                     </ListItemIcon>
                     <ListItemText primary="TF" />
                 </ListItemButton>
-                <ListItemButton href="/">
+                <ListItemButton href="/launcher">
                     <ListItemIcon>
                         <DraftsIcon />
                     </ListItemIcon>

@@ -296,6 +296,7 @@ function Cube2({ parents, child, frame_id }) {
             const nextJoint = joint_list[i + 1];
             const position = new THREE.Vector3(currentJoint.y, currentJoint.z, currentJoint.x);
             const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+                // currentJoint.pitch, currentJoint.yaw, currentJoint.roll,
                 0, 0, 0,
                 'YZX'
             ));
@@ -310,6 +311,7 @@ function Cube2({ parents, child, frame_id }) {
             // 次のジョイントまでの変換行列を計算
             const nextPosition = new THREE.Vector3(nextJoint.y, nextJoint.z, nextJoint.x);
             const nextQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+                // nextJoint.pitch, nextJoint.yaw, nextJoint.roll,
                 0, 0, 0,
                 'YZX'
             ));

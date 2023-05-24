@@ -420,13 +420,13 @@ export default function TF() {
               <Box>
                 <Checkbox checked={vehicle_view} onClick={() => { set_vehicle_view(!vehicle_view) }} />
               </Box>
-              <Box>TODO:</Box>
+              {/* <Box>TODO:</Box>
               <Box>* UMLの図をxacroのマクロに沿ったsuffixをつける</Box>
               <Box>* 3D図側にセンサーの取り付け</Box>
               <Box>* 値の反映</Box>
               <Box>* 保存</Box>
               <Box>* テーブルからセンサーのCRUD</Box>
-              <Box>* xacroファイルペースト用テキスト作成</Box>
+              <Box>* xacroファイルペースト用テキスト作成</Box> */}
               <Box>
                 <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} />
               </Box>
