@@ -1,9 +1,9 @@
 "use client"
 import { Box, Checkbox, Collapse, FormLabel, Grid, TextField, Typography } from '@mui/material';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as React from 'react';
-import { Ground, MyAxes, Vehicle, Sensor } from '../components/vehicle_model_view';
+import { Ground, MyAxes, Vehicle, Sensor, Model, QuatanionPoseForm } from '../components/vehicle_model_view';
 import axios from 'axios';
 import Link from 'next/link';
 import { Mermaid } from 'mdx-mermaid/Mermaid';
@@ -35,7 +35,7 @@ const BASE_LINK = {
 }
 
 const DEFAULT_POSE = {
-  frame_id: "",
+  frame_id: "base_link",
   transform: {
     x: 0,
     y: 0,
@@ -54,6 +54,7 @@ export default function TF() {
   const [mermaid_txt, set_mermaid_txt] = React.useState("graph TD;base_link;");
   const [check_all, set_check_all] = useState(true);
   const [pos_data, set_pos_data] = useState(DEFAULT_POSE);
+  const [parents, set_parents] = useState([]);
 
   React.useEffect(() => {
     let mermaid_txt = MERMAID_HEADER;
@@ -235,8 +236,14 @@ export default function TF() {
   }
 
 
-  const PoseForm = ({ transform }) => {
+  const PoseForm = ({ transform, frame_id, parents }) => {
     return (<>
+
+      <Box>
+        <Typography variant="h6">
+          Euler Position from parent frame_id
+        </Typography>
+      </Box>
       <Box display={"flex"}>
         <TextField label={"x"} value={transform["x"]} size="small"
           onChange={(evt) => {
@@ -265,6 +272,7 @@ export default function TF() {
             // update_position(evt.target.value, i, j, "yaw");
           }} />
       </Box>
+      <QuatanionPoseForm transform={transform} parents={parents} />
     </>);
   }
 
@@ -293,14 +301,15 @@ export default function TF() {
   }, [pos_data])
 
   const click_handler = (target, parents_id) => {
-    console.log(parents_id)
     if (parents_id.length === 0) {
       set_pos_data(sensor_link_map.find((ele, idx) => {
+        set_parents([DEFAULT_POSE]);
         return ele.frame_id === target.frame_id;
       }));
     } else {
       set_pos_data(sensor_link_map.find((ele, idx) => {
         return parents_id.find((e) => {
+          set_parents([DEFAULT_POSE, ele]);
           return e === ele.frame_id;
         });
       }).children.find((ele) => {
@@ -386,12 +395,14 @@ export default function TF() {
             <Box sx={{ height: "400px", width: "inherit" }}>
               {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
+                  {/* <SceneRoot> */}
                   <MyAxes />
                   <gridHelper args={[5, 10]} />
                   <gridHelper args={[5, 10]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
                   <gridHelper args={[5, 10]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} />
                   <OrbitControls />
                   <ambientLight intensity={0.1} />
+                  {/* <Model vehicle_data={vehicle_data} /> */}
                   {vehicle_view && <Vehicle vehicle_data={vehicle_data} />}
                   <Ground vehicle_data={vehicle_data} />
                   {sensor_link_map.map((ele, idx) => {
@@ -413,6 +424,7 @@ export default function TF() {
                       })}
                     </>);
                   })}
+                  {/* </SceneRoot> */}
                 </Canvas>
               }
             </Box>
@@ -428,7 +440,7 @@ export default function TF() {
               <Box>* テーブルからセンサーのCRUD</Box>
               <Box>* xacroファイルペースト用テキスト作成</Box> */}
               <Box>
-                <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} />
+                <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} parents={parents} />
               </Box>
             </Box>
           </Box>

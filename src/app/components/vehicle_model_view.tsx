@@ -1,14 +1,18 @@
 "use client";
 
-import { Box, linkClasses } from "@mui/material";
+import { Box, TextField, Typography, linkClasses } from "@mui/material";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { DoubleSide } from 'three';
-import { OrbitControls } from '@react-three/drei'
+import { Cylinder, OrbitControls } from '@react-three/drei'
 import * as THREE from "three"
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useEffect } from "react";
+import { useLoader } from '@react-three/fiber';
+import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader';
 
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { useGLTF } from "@react-three/drei";
 
 //  {/* 本来 */}
 //   {/* position = {[x, y, z]} */}
@@ -23,375 +27,404 @@ import { useEffect } from "react";
 //   {/* axis ={b: x, r: y, g: z} */}
 
 export const AxisHelper = ({ color, direction, length }) => {
-    const { scene } = useThree();
+  const { scene } = useThree();
 
-    const normalizedDirection = direction.normalize();
-    const arrowHeadLength = length * 0.05;
+  const normalizedDirection = direction.normalize();
+  const arrowHeadLength = length * 0.05;
 
-    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
-    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
-    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
-    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+  const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+  const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+  const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+  arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
 
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
-    const lineMaterial = new THREE.LineBasicMaterial({ color });
-    const line = new THREE.Line(lineGeometry, lineMaterial);
-    line.material.linewidth = 3;
-    // scene.add(arrowMesh);
-    scene.add(line);
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+  const lineMaterial = new THREE.LineBasicMaterial({ color });
+  const line = new THREE.Line(lineGeometry, lineMaterial);
+  line.material.linewidth = 3;
+  // scene.add(arrowMesh);
+  scene.add(line);
 
-    return null;
+  return null;
 };
 
 export const MyAxes = () => {
-    const axis_length = 3;
-    return (<>
-        <AxisHelper color="red" direction={new THREE.Vector3(0, 0, 1)} length={axis_length} />
-        <AxisHelper color="green" direction={new THREE.Vector3(1, 0, 0)} length={axis_length} />
-        <AxisHelper color="blue" direction={new THREE.Vector3(0, 1, 0)} length={axis_length} />
-    </>)
+  const axis_length = 3;
+  return (<>
+    <AxisHelper color="red" direction={new THREE.Vector3(0, 0, 1)} length={axis_length} />
+    <AxisHelper color="green" direction={new THREE.Vector3(1, 0, 0)} length={axis_length} />
+    <AxisHelper color="blue" direction={new THREE.Vector3(0, 1, 0)} length={axis_length} />
+  </>)
 }
 
 export const VehicleBody = ({ vehicle_data }) => {
-    if (vehicle_data === {}) {
-        return (<></>);
-    }
-    return (
-        <>
-            {/* TODO ホイール分浮いているので、削るかどうにかする */}
-            {/* main */}
-            <mesh position={[
-                0,
-                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
-                vehicle_data.wheel_base / 2]}>
-                <boxGeometry args={[
-                    vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
-                    vehicle_data.wheel_base,
-                ]} />
-                <meshPhongMaterial color="#000088" opacity={0.5} transparent={true} />
-            </mesh>
+  if (vehicle_data === {}) {
+    return (<></>);
+  }
+  return (
+    <>
+      {/* TODO ホイール分浮いているので、削るかどうにかする */}
+      {/* main */}
+      <mesh position={[
+        0,
+        (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
+        vehicle_data.wheel_base / 2]}>
+        <boxGeometry args={[
+          vehicle_data.wheel_tread,
+          vehicle_data.vehicle_height - vehicle_data.wheel_radius,
+          vehicle_data.wheel_base,
+        ]} />
+        <meshPhongMaterial color="#000088" opacity={0.5} transparent={true} />
+      </mesh>
 
-            {/* rear_overhang */}
-            <mesh position={[0,
-                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
-                -vehicle_data.rear_overhang / 2]}>
-                <boxGeometry args={[
-                    vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
-                    vehicle_data.rear_overhang,
-                ]} />
-                <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
-            </mesh>
+      {/* rear_overhang */}
+      <mesh position={[0,
+        (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
+        -vehicle_data.rear_overhang / 2]}>
+        <boxGeometry args={[
+          vehicle_data.wheel_tread,
+          vehicle_data.vehicle_height - vehicle_data.wheel_radius,
+          vehicle_data.rear_overhang,
+        ]} />
+        <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
+      </mesh>
 
-            {/* front_overhang */}
-            <mesh position={[0,
-                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
-                vehicle_data.front_overhang / 2 + vehicle_data.wheel_base]}>
-                <boxGeometry args={[
-                    vehicle_data.wheel_tread,
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius,
-                    vehicle_data.front_overhang,
-                ]} />
-                <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
-            </mesh>
-        </>
-    );
+      {/* front_overhang */}
+      <mesh position={[0,
+        (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
+        vehicle_data.front_overhang / 2 + vehicle_data.wheel_base]}>
+        <boxGeometry args={[
+          vehicle_data.wheel_tread,
+          vehicle_data.vehicle_height - vehicle_data.wheel_radius,
+          vehicle_data.front_overhang,
+        ]} />
+        <meshPhongMaterial color="blue" opacity={0.5} transparent={true} />
+      </mesh>
+    </>
+  );
 }
 
 export const VehicleWheel = ({ vehicle_data }) => {
-    const offset = 0.0;
-    if (vehicle_data === {}) {
-        return (<></>);
-    }
-    return (
-        <>
-            {/* rear_left */}
-            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, 0]}
-                rotation={[Math.PI / 2, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[
-                    vehicle_data.wheel_radius, vehicle_data.wheel_radius,
-                    vehicle_data.wheel_width, 64
-                ]} />
-                <meshPhongMaterial color="red" />
-            </mesh>
+  const offset = 0.0;
+  if (vehicle_data === {}) {
+    return (<></>);
+  }
+  return (
+    <>
+      {/* rear_left */}
+      <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, 0]}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[
+          vehicle_data.wheel_radius, vehicle_data.wheel_radius,
+          vehicle_data.wheel_width, 64
+        ]} />
+        <meshPhongMaterial color="red" />
+      </mesh>
 
-            {/* rear_right */}
-            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, 0]}
-                rotation={[Math.PI / 2, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[
-                    vehicle_data.wheel_radius, vehicle_data.wheel_radius,
-                    vehicle_data.wheel_width, 64
-                ]} />
-                <meshPhongMaterial color="red" />
-            </mesh>
+      {/* rear_right */}
+      <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, 0]}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[
+          vehicle_data.wheel_radius, vehicle_data.wheel_radius,
+          vehicle_data.wheel_width, 64
+        ]} />
+        <meshPhongMaterial color="red" />
+      </mesh>
 
-            {/* front_left */}
-            <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
-                rotation={[Math.PI / 2, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[
-                    vehicle_data.wheel_radius, vehicle_data.wheel_radius,
-                    vehicle_data.wheel_width, 64
-                ]} />
-                <meshPhongMaterial color="red" />
-            </mesh>
+      {/* front_left */}
+      <mesh position={[vehicle_data.wheel_tread / 2 - vehicle_data.wheel_width / 2 - offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[
+          vehicle_data.wheel_radius, vehicle_data.wheel_radius,
+          vehicle_data.wheel_width, 64
+        ]} />
+        <meshPhongMaterial color="red" />
+      </mesh>
 
-            {/* front_right */}
-            <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
-                rotation={[Math.PI / 2, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[
-                    vehicle_data.wheel_radius, vehicle_data.wheel_radius,
-                    vehicle_data.wheel_width, 64
-                ]} />
-                <meshPhongMaterial color="red" />
-            </mesh>
+      {/* front_right */}
+      <mesh position={[-vehicle_data.wheel_tread / 2 + vehicle_data.wheel_width / 2 + offset, vehicle_data.wheel_radius, vehicle_data.wheel_base]}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[
+          vehicle_data.wheel_radius, vehicle_data.wheel_radius,
+          vehicle_data.wheel_width, 64
+        ]} />
+        <meshPhongMaterial color="red" />
+      </mesh>
 
-        </>
-    );
+    </>
+  );
 }
 
 export const VehicleSideOverhang = ({ vehicle_data }) => {
-    if (vehicle_data === {}) {
-        return (<></>);
-    }
-    return (
-        <>
-            <mesh position={[
-                (vehicle_data.wheel_tread / 2 + vehicle_data.left_overhang / 2),
-                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
-                (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
-            ]}>
-                <boxGeometry args={[
-                    vehicle_data.left_overhang, //y
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
-                    vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
-                ]} />
-                <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
-            </mesh>
+  if (vehicle_data === {}) {
+    return (<></>);
+  }
+  return (
+    <>
+      <mesh position={[
+        (vehicle_data.wheel_tread / 2 + vehicle_data.left_overhang / 2),
+        (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
+        (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
+      ]}>
+        <boxGeometry args={[
+          vehicle_data.left_overhang, //y
+          vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
+          vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
+        ]} />
+        <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
+      </mesh>
 
-            <mesh position={[
-                -(vehicle_data.wheel_tread / 2 + vehicle_data.right_overhang / 2),
-                (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
-                (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
-            ]}>
-                <boxGeometry args={[
-                    vehicle_data.right_overhang, //y
-                    vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
-                    vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
-                ]} />
-                <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
-            </mesh>
-        </>);
+      <mesh position={[
+        -(vehicle_data.wheel_tread / 2 + vehicle_data.right_overhang / 2),
+        (vehicle_data.vehicle_height + vehicle_data.wheel_radius) / 2,
+        (vehicle_data.wheel_base + vehicle_data.front_overhang - vehicle_data.rear_overhang) / 2
+      ]}>
+        <boxGeometry args={[
+          vehicle_data.right_overhang, //y
+          vehicle_data.vehicle_height - vehicle_data.wheel_radius, //z
+          vehicle_data.front_overhang + vehicle_data.wheel_base + vehicle_data.rear_overhang,//x
+        ]} />
+        <meshPhongMaterial color="#aaaaff" opacity={0.5} transparent={true} />
+      </mesh>
+    </>);
 }
 
 export const Ground = ({ vehicle_data }) => {
-    if (vehicle_data === {}) {
-        return (<></>);
-    }
-    return (<>
-        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[
-                (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5,
-                (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5
-            ]} />
-            <meshStandardMaterial color="rgba(255,255,255,1)" side={DoubleSide} />
-        </mesh>
-    </>)
+  if (vehicle_data === {}) {
+    return (<></>);
+  }
+  return (<>
+    <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[
+        (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5,
+        (vehicle_data.wheel_base + vehicle_data.front_overhang + vehicle_data.rear_overhang) * 2.5
+      ]} />
+      <meshStandardMaterial color="rgba(255,255,255,1)" side={DoubleSide} />
+    </mesh>
+  </>)
+}
+
+
+export const Model = ({ vehicle_data }) => {
+  const path = `lexus.dae`;
+  const { scene } = useLoader(ColladaLoader, path);
+
+  // const { nodes, materials } = useGLTF('/lexus.dae', '/draco-gltf/');
+  // return (
+  //   <mesh geometry={nodes.Default.geometry} material={materials['Material.001']} />
+  // );
+
+  const material = new THREE.MeshStandardMaterial({ color: 0xff0000 }); // 赤色
+  return <primitive object={scene}
+    position={[0, 0, vehicle_data.wheel_base / 2]}
+    rotation={[0, Math.PI / 2, 0]}
+    dispose={null}
+    material={material}
+  />;
 }
 
 export const Vehicle = ({ vehicle_data }) => {
-    return (<>
-        <VehicleBody vehicle_data={vehicle_data} />
-        <VehicleWheel vehicle_data={vehicle_data} />
-        <VehicleSideOverhang vehicle_data={vehicle_data} />
-    </>)
+  return (<>
+    {/* <Model vehicle_data={vehicle_data} /> */}
+    <VehicleBody vehicle_data={vehicle_data} />
+    <VehicleWheel vehicle_data={vehicle_data} />
+    <VehicleSideOverhang vehicle_data={vehicle_data} />
+  </>)
 }
 
 export default function VehicleModelView({ vehicle_data }) {
-    return (<>
-        <Box sx={{ height: "500px", border: "solid" }}>
-            {Object.keys(vehicle_data).length > 0 &&
-                <Canvas>
-                    <MyAxes />
-                    <gridHelper args={[10, 20]} />
-                    <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
-                    <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} />
-                    <OrbitControls />
-                    <ambientLight intensity={0.1} />
-                    <Vehicle vehicle_data={vehicle_data} />
-                    <Ground vehicle_data={vehicle_data} />
-                </Canvas>
-            }
-        </Box>
-    </>)
+  return (<>
+    <Box sx={{ height: "500px", border: "solid" }}>
+      {Object.keys(vehicle_data).length > 0 &&
+        <Canvas>
+          <MyAxes />
+          <gridHelper args={[10, 20]} />
+          <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
+          <gridHelper args={[10, 20]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} />
+          <OrbitControls />
+          <ambientLight intensity={0.1} />
+          <Vehicle vehicle_data={vehicle_data} />
+          <Ground vehicle_data={vehicle_data} />
+        </Canvas>
+      }
+    </Box>
+  </>)
 
 }
 
 export const AxisHelper2 = ({ color, direction, length, pos }) => {
-    const { scene } = useThree();
-    console.log(pos)
-    const normalizedDirection = direction.normalize();
-    const arrowHeadLength = length * 0.05;
+  const { scene } = useThree();
+  console.log(pos)
+  const normalizedDirection = direction.normalize();
+  const arrowHeadLength = length * 0.05;
 
-    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
-    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
-    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
-    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+  const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+  const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+  const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+  arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
 
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(
-        [[pos.x, pos.y, pos.z], normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
-    const lineMaterial = new THREE.LineBasicMaterial({ color });
-    const line = new THREE.Line(lineGeometry, lineMaterial);
-    line.material.linewidth = 3;
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints(
+    [[pos.x, pos.y, pos.z], normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+  const lineMaterial = new THREE.LineBasicMaterial({ color });
+  const line = new THREE.Line(lineGeometry, lineMaterial);
+  line.material.linewidth = 3;
 
-    // scene.add(arrowMesh);
-    scene.add(line);
+  // scene.add(arrowMesh);
+  scene.add(line);
 
-    return null;
+  return null;
 };
 
 
 export const MyAxes2 = ({ pos }) => {
-    const axis_length = 0.3;
-    return (<>
-        {/* <AxisHelper2
+  const axis_length = 0.3;
+  return (<>
+    {/* <AxisHelper2
             color="red"
             direction={new THREE.Vector3(0, 0, 1)}
             length={axis_length}
             pos={pos}
         /> */}
-    </>)
+  </>)
 }
 
 
 function Cube2({ parents, child, frame_id }) {
-    const cubeRef = useRef();
+  const cubeRef = useRef();
 
-    // useEffect(() => {
-    //     // マウスオーバー時のイベントハンドラを追加
-    //     const handleMouseOver = () => {
-    //         console.log('Mouse over event');
-    //         // ここで好きな処理を行います
-    //     };
+  // useFrame(() => {
+  //     updateTransforms();
+  // });
+  useEffect(() => {
+    updateTransforms();
+  }, [child]);
 
-    //     cubeRef.current.addEventListener('mouseover', handleMouseOver);
-    //     return () => {
-    //         cubeRef.current.removeEventListener('mouseover', handleMouseOver);
-    //     };
-    // });
+  function updateTransforms() {
 
+    // const zero = new THREE.Matrix4();
+    // cubeRef.current.applyMatrix4(zero);
+    const joint_list = [...parents, child];
+    const child_idx = joint_list.length - 1;
 
-    useFrame(() => {
-        updateTransforms();
-    });
+    const list = joint_list.map((ele) => {
+      let link = new THREE.Object3D();
+      link.position.set(ele.x, ele.y, ele.z);
+      link.rotation.set(ele.roll, ele.pitch, ele.yaw);
+      return link;
+    })
 
-    function updateTransforms() {
-
-        const joint_list = [...parents, child];
-        let sum_roll = 0;
-        let sum_pitch = 0;
-        let sum_yaw = 0;
-        for (let i = 0; i < joint_list.length - 1; i++) {
-            const currentJoint = joint_list[i];
-            const nextJoint = joint_list[i + 1];
-            const position = new THREE.Vector3(currentJoint.y, currentJoint.z, currentJoint.x);
-            const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
-                // currentJoint.pitch, currentJoint.yaw, currentJoint.roll,
-                0, 0, 0,
-                'YZX'
-            ));
-            sum_roll += nextJoint.roll;
-            sum_pitch += nextJoint.pitch;
-            sum_yaw += nextJoint.yaw;
-
-            // リンクの座標変換を適用
-            cubeRef.current.position.copy(position);
-            cubeRef.current.quaternion.copy(quaternion);
-
-            // 次のジョイントまでの変換行列を計算
-            const nextPosition = new THREE.Vector3(nextJoint.y, nextJoint.z, nextJoint.x);
-            const nextQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
-                // nextJoint.pitch, nextJoint.yaw, nextJoint.roll,
-                0, 0, 0,
-                'YZX'
-            ));
-
-            const transformMatrix = new THREE.Matrix4();
-            transformMatrix.compose(nextPosition, nextQuaternion, new THREE.Vector3(1, 1, 1));
-
-            // 次のリンクの座標変換を適用
-            cubeRef.current.applyMatrix4(transformMatrix);
-
-            cubeRef.current.rotateX(sum_pitch);
-            cubeRef.current.rotateY(sum_yaw);
-            cubeRef.current.rotateZ(sum_roll);
-
-        }
-
+    for (var i = 0; i < list.length - 1; i++) {
+      list[i].add(list[i + 1]);
     }
 
-    return (
-        <>
-            <mesh ref={cubeRef}
-                onClick={() => {
-                    // console.log(child, frame_id)
-                }}
-            >
-                <boxGeometry args={[0.1, 0.1, 0.1]} />
-                <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
-                <CubeAxes link={[...parents, child]} frame_id={frame_id} />
-            </mesh>
-        </>
-    );
+    list.forEach(element => {
+      element.updateMatrixWorld();
+    });
+
+    let pos = new THREE.Vector3();
+    pos.setFromMatrixPosition(list[child_idx].matrixWorld);
+    let qua = new THREE.Quaternion();
+    qua.setFromRotationMatrix(list[child_idx].matrixWorld);
+    let euler = new THREE.Euler();
+    euler.setFromQuaternion(qua, 'XYZ');
+    // console.log(pos, qua)
+
+    const transformMatrix = new THREE.Matrix4();
+
+    let globalPosition2 = new THREE.Vector3(pos.y, pos.z, pos.x);
+    let globalQuaternion = new THREE.Quaternion(qua._y, qua._z, qua._x, qua._w);
+    let euler2 = new THREE.Euler();
+    euler2.setFromQuaternion(globalQuaternion, 'XYZ');
+    // console.log(globalPosition2, euler2)
+
+    // transformMatrix.compose(pos, qua, new THREE.Vector3(1, 1, 1));
+    transformMatrix.compose(globalPosition2, globalQuaternion, new THREE.Vector3(1, 1, 1));
+
+    // 次のリンクの座標変換を適用
+    cubeRef.current.applyMatrix4(transformMatrix);
+
+  }
+  const axis_size = 0.0025;
+  const axis_len = 0.15;
+  const material_x = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const material_y = new THREE.MeshBasicMaterial({ color: 0xf00ff00 });
+  const material_z = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  const cube_size = 0.1;
+  return (
+    <>
+      <mesh ref={cubeRef}
+        onClick={() => {
+          // console.log(child, frame_id)
+        }}
+      >
+        <boxGeometry args={[cube_size, cube_size, cube_size]} />
+        <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
+        {/* <CubeAxes link={[...parents, child]} frame_id={frame_id} /> */}
+        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
+          position={[0, 0, axis_len / 2]}
+          rotation={[Math.PI / 2, 0, 0]}
+          material={material_x} />
+        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
+          position={[axis_len / 2, 0, 0]}
+          rotation={[0, 0, Math.PI / 2]}
+          material={material_y} />
+        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
+          position={[0, axis_len / 2, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          material={material_z} />
+      </mesh>
+    </>
+  );
 }
 
 
 export const CubeAxisHelper = ({ color, direction, length }) => {
-    const { scene } = useThree();
+  const { scene } = useThree();
 
-    const normalizedDirection = direction.normalize();
-    const arrowHeadLength = length * 0.05;
+  const normalizedDirection = direction.normalize();
+  const arrowHeadLength = length * 0.05;
 
-    const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
-    const arrowMaterial = new THREE.MeshBasicMaterial({ color });
-    const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
-    arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
+  const arrowGeometry = new THREE.ConeGeometry(arrowHeadLength, arrowHeadLength * 2, 8);
+  const arrowMaterial = new THREE.MeshBasicMaterial({ color });
+  const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
+  arrowMesh.position.copy(normalizedDirection.multiplyScalar(length - arrowHeadLength));
 
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
-    const lineMaterial = new THREE.LineBasicMaterial({ color });
-    const line = new THREE.Line(lineGeometry, lineMaterial);
-    line.material.linewidth = 3;
-    // scene.add(arrowMesh);
-    scene.add(line);
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), normalizedDirection.multiplyScalar(length - arrowHeadLength)]);
+  const lineMaterial = new THREE.LineBasicMaterial({ color });
+  const line = new THREE.Line(lineGeometry, lineMaterial);
+  line.material.linewidth = 3;
+  // scene.add(arrowMesh);
+  scene.add(line);
 
-    return null;
+  return null;
 };
 
 const CubeAxes = ({ link, frame_id }) => {
-    const axisRef = useRef();
-    const length = 0.125;
-    const linewidth = 2;
+  const axisRef = useRef();
+  const length = 0.125;
+  const linewidth = 2.5;
 
-    useFrame(() => {
-        const roll = link.reduce((sum, ele) => {
-            return sum + ele.roll;
-        }, 0);
-        const pitch = link.reduce((sum, ele) => {
-            return sum + ele.pitch;
-        }, 0);
-        const yaw = link.reduce((sum, ele) => {
-            return sum + ele.yaw;
-        }, 0);
-        //(yaw, pitch, roll)
-        const rotation = new THREE.Euler(0, 0, 0);
-        // const rotation = new THREE.Euler(yaw, pitch, roll);
-        // const rotation = new THREE.Euler(pitch, yaw, roll);
-        // console.log(frame_id, roll, pitch, yaw);
-        axisRef.current.rotation.copy(rotation);
-    });
-    return (
-        <group ref={axisRef}>
-            <line>
+  useFrame(() => {
+    const roll = link.reduce((sum, ele) => {
+      return sum + ele.roll;
+    }, 0);
+    const pitch = link.reduce((sum, ele) => {
+      return sum + ele.pitch;
+    }, 0);
+    const yaw = link.reduce((sum, ele) => {
+      return sum + ele.yaw;
+    }, 0);
+    //(yaw, pitch, roll)
+    const rotation = new THREE.Euler(0, 0, 0);
+    // const rotation = new THREE.Euler(roll, pitch, yaw);
+    // const rotation = new THREE.Euler(yaw, pitch, roll);
+    // const rotation = new THREE.Euler(pitch, yaw, roll);
+    // console.log(frame_id, roll, pitch, yaw);
+    axisRef.current.rotation.copy(rotation);
+  });
+  return (
+    <group ref={axisRef}>
+      {/* <axesHelper args={[0.25]} /> */}
+      {/* <line>
                 <bufferGeometry attach="geometry"
                     {...new THREE.BufferGeometry().setFromPoints(
                         [new THREE.Vector3(0, 0, 0), new THREE.Vector3(length, 0, 0)])} />
@@ -408,39 +441,121 @@ const CubeAxes = ({ link, frame_id }) => {
                     {...new THREE.BufferGeometry().setFromPoints(
                         [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, length)])} />
                 <lineBasicMaterial color="red" attach="material" linewidth={linewidth} />
-            </line>
-        </group>
-    );
+            </line> */}
+    </group>
+  );
 };
 
-const CustomAxis = ({ direction, length, color }) => {
-    const axisRef = useRef();
+// const CustomAxis = ({ direction, length, color }) => {
+//     const axisRef = useRef();
 
-    useFrame(() => {
-        // メッシュの位置や向きに応じて軸を更新するために、useFrameフックを使用します
-        const mesh = axisRef.current;
-        const position = mesh.parent.position;
-        const rotation = mesh.parent.rotation;
+//     useFrame(() => {
+//         // メッシュの位置や向きに応じて軸を更新するために、useFrameフックを使用します
+//         const mesh = axisRef.current;
+//         const position = mesh.parent.position;
+//         const rotation = mesh.parent.rotation;
 
-        // 向きを基本軸とした軸を作成します
-        // const axis = new THREE.Vector3(direction.x, direction.y, direction.z).normalize();
-        const axis = new THREE.Vector3(rotation.y, rotation.z, rotation.x).normalize();
-        const arrowHelper = new THREE.ArrowHelper(axis, position, length, new THREE.Color(color));
+//         // 向きを基本軸とした軸を作成します
+//         // const axis = new THREE.Vector3(direction.x, direction.y, direction.z).normalize();
+//         const axis = new THREE.Vector3(rotation.y, rotation.z, rotation.x).normalize();
+//         const arrowHelper = new THREE.ArrowHelper(axis, position, length, new THREE.Color(color));
 
-        // メッシュの位置や向きに合わせて軸を配置します
-        arrowHelper.position.copy(position);
-        arrowHelper.rotation.copy(rotation);
+//         // メッシュの位置や向きに合わせて軸を配置します
+//         arrowHelper.position.copy(position);
+//         arrowHelper.rotation.copy(rotation);
 
-        // メッシュに軸を追加します
-        mesh.add(arrowHelper);
-    });
+//         // メッシュに軸を追加します
+//         mesh.add(arrowHelper);
+//     });
 
-    return <group ref={axisRef} />;
-};
+//     return <group ref={axisRef} />;
+// };
 
 
 export function Sensor({ parents, child, frame_id }) {
-    return (<>
-        <Cube2 parents={parents} child={child} frame_id={frame_id} />
-    </>);
+  return (<>
+    <Cube2 parents={parents} child={child} frame_id={frame_id} />
+  </>);
+}
+
+export function QuatanionPoseForm({ transform, parents }) {
+  const [pos, set_abs_pos] = useState({ x: 0, y: 0, z: 0 });
+  const [quo, set_abs_rotation] = useState({ _x: 0, _y: 0, _z: 0, _w: 1 });
+  useEffect(() => {
+    const joint_list = [...parents, { transform: transform }];
+    const child_idx = joint_list.length - 1;
+
+    const list = joint_list.map(({ transform: { x, y, z, roll, pitch, yaw } }) => {
+      let link = new THREE.Object3D();
+      link.position.set(x, y, z);
+      link.rotation.set(roll, pitch, yaw);
+      return link;
+    })
+    console.log(list)
+
+    for (var i = 0; i < list.length - 1; i++) {
+      list[i].add(list[i + 1]);
+    }
+
+    list.forEach(element => {
+      element.updateMatrixWorld();
+    });
+
+    let pos = new THREE.Vector3();
+    pos.setFromMatrixPosition(list[child_idx].matrixWorld);
+    let qua = new THREE.Quaternion();
+    qua.setFromRotationMatrix(list[child_idx].matrixWorld);
+    let euler = new THREE.Euler();
+    euler.setFromQuaternion(qua, 'XYZ');
+    // console.log(pos, qua)
+    const transformMatrix = new THREE.Matrix4();
+    let pos2 = new THREE.Vector3(pos.x, pos.y, pos.z);
+    let qua2 = new THREE.Quaternion(qua._x, qua._y, qua._z, qua._w);
+    let euler2 = new THREE.Euler();
+    euler2.setFromQuaternion(qua2, 'XYZ');
+    transformMatrix.compose(pos2, qua2, new THREE.Vector3(1, 1, 1));
+
+    set_abs_pos(pos2);
+    set_abs_rotation(qua2);
+
+  }, [transform]);
+  return (<>
+    <Box>
+      <Typography variant="h6">
+        Quotanion position from base_link
+      </Typography>
+    </Box>
+    <Box display={"flex"}>
+      <TextField label={"x"} value={pos["x"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "x");
+        }} />
+      <TextField label={"y"} value={pos["y"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "y");
+        }} />
+      <TextField label={"z"} value={pos["z"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "z");
+        }} />
+    </Box>
+    <Box display={"flex"} sx={{ mt: 1 }}>
+      <TextField label={"_x"} value={quo["_x"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "roll");
+        }} />
+      <TextField label={"_y"} value={quo["_y"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "roll");
+        }} />
+      <TextField label={"_z"} value={quo["_z"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "roll");
+        }} />
+      <TextField label={"_w"} value={quo["_w"]} size="small"
+        onChange={(evt) => {
+          // update_position(evt.target.value, i, j, "roll");
+        }} />
+    </Box>
+  </>);
 }
