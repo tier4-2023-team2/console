@@ -241,7 +241,7 @@ export default function TF() {
 
       <Box>
         <Typography variant="h6">
-          Euler Position from parent frame_id
+          Relative Position from parent
         </Typography>
       </Box>
       <Box display={"flex"}>

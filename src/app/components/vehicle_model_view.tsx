@@ -224,7 +224,6 @@ export const Model = ({ vehicle_data }) => {
 
 export const Vehicle = ({ vehicle_data }) => {
   return (<>
-    {/* <Model vehicle_data={vehicle_data} /> */}
     <VehicleBody vehicle_data={vehicle_data} />
     <VehicleWheel vehicle_data={vehicle_data} />
     <VehicleSideOverhang vehicle_data={vehicle_data} />
@@ -291,31 +290,24 @@ export const MyAxes2 = ({ pos }) => {
 function Cube2({ parents, child, frame_id }) {
   const cubeRef = useRef();
 
-  // useFrame(() => {
-  //     updateTransforms();
-  // });
-  useEffect(() => {
+  useFrame(() => {
     updateTransforms();
-  }, [child]);
+  });
 
   function updateTransforms() {
-
-    // const zero = new THREE.Matrix4();
-    // cubeRef.current.applyMatrix4(zero);
     const joint_list = [...parents, child];
     const child_idx = joint_list.length - 1;
-
+    const rotation_order = "ZYX";
     const list = joint_list.map((ele) => {
       let link = new THREE.Object3D();
       link.position.set(ele.x, ele.y, ele.z);
-      link.rotation.set(ele.roll, ele.pitch, ele.yaw);
+      link.rotation.set(ele.roll, ele.pitch, ele.yaw, rotation_order);
       return link;
     })
 
     for (var i = 0; i < list.length - 1; i++) {
       list[i].add(list[i + 1]);
     }
-
     list.forEach(element => {
       element.updateMatrixWorld();
     });
@@ -324,30 +316,17 @@ function Cube2({ parents, child, frame_id }) {
     pos.setFromMatrixPosition(list[child_idx].matrixWorld);
     let qua = new THREE.Quaternion();
     qua.setFromRotationMatrix(list[child_idx].matrixWorld);
-    let euler = new THREE.Euler();
-    euler.setFromQuaternion(qua, 'XYZ');
-    // console.log(pos, qua)
-
-    const transformMatrix = new THREE.Matrix4();
 
     let globalPosition2 = new THREE.Vector3(pos.y, pos.z, pos.x);
     let globalQuaternion = new THREE.Quaternion(qua._y, qua._z, qua._x, qua._w);
-    let euler2 = new THREE.Euler();
-    euler2.setFromQuaternion(globalQuaternion, 'XYZ');
-    // console.log(globalPosition2, euler2)
+    let euler = new THREE.Euler();
+    euler.setFromQuaternion(globalQuaternion, 'XYZ');
 
-    // transformMatrix.compose(pos, qua, new THREE.Vector3(1, 1, 1));
-    transformMatrix.compose(globalPosition2, globalQuaternion, new THREE.Vector3(1, 1, 1));
 
-    // 次のリンクの座標変換を適用
-    cubeRef.current.applyMatrix4(transformMatrix);
+    cubeRef.current.rotation.copy(euler);
+    cubeRef.current.position.copy(globalPosition2);
 
   }
-  const axis_size = 0.0025;
-  const axis_len = 0.15;
-  const material_x = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  const material_y = new THREE.MeshBasicMaterial({ color: 0xf00ff00 });
-  const material_z = new THREE.MeshBasicMaterial({ color: 0x0000ff });
   const cube_size = 0.1;
   return (
     <>
@@ -358,19 +337,7 @@ function Cube2({ parents, child, frame_id }) {
       >
         <boxGeometry args={[cube_size, cube_size, cube_size]} />
         <meshBasicMaterial color={0x00ff00} wireframe={true} opacity={0.5} transparent={true} />
-        {/* <CubeAxes link={[...parents, child]} frame_id={frame_id} /> */}
-        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
-          position={[0, 0, axis_len / 2]}
-          rotation={[Math.PI / 2, 0, 0]}
-          material={material_x} />
-        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
-          position={[axis_len / 2, 0, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-          material={material_y} />
-        <Cylinder args={[axis_size, axis_size, axis_len, 32]}
-          position={[0, axis_len / 2, 0]}
-          rotation={[0, Math.PI / 2, 0]}
-          material={material_z} />
+        <CubeAxes link={[...parents, child]} frame_id={frame_id} />
       </mesh>
     </>
   );
@@ -403,74 +370,30 @@ const CubeAxes = ({ link, frame_id }) => {
   const length = 0.125;
   const linewidth = 2.5;
 
-  useFrame(() => {
-    const roll = link.reduce((sum, ele) => {
-      return sum + ele.roll;
-    }, 0);
-    const pitch = link.reduce((sum, ele) => {
-      return sum + ele.pitch;
-    }, 0);
-    const yaw = link.reduce((sum, ele) => {
-      return sum + ele.yaw;
-    }, 0);
-    //(yaw, pitch, roll)
-    const rotation = new THREE.Euler(0, 0, 0);
-    // const rotation = new THREE.Euler(roll, pitch, yaw);
-    // const rotation = new THREE.Euler(yaw, pitch, roll);
-    // const rotation = new THREE.Euler(pitch, yaw, roll);
-    // console.log(frame_id, roll, pitch, yaw);
-    axisRef.current.rotation.copy(rotation);
-  });
+  useFrame(() => { });
   return (
     <group ref={axisRef}>
-      {/* <axesHelper args={[0.25]} /> */}
-      {/* <line>
-                <bufferGeometry attach="geometry"
-                    {...new THREE.BufferGeometry().setFromPoints(
-                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(length, 0, 0)])} />
-                <lineBasicMaterial color="green" attach="material" linewidth={linewidth} />
-            </line>
-            <line>
-                <bufferGeometry attach="geometry"
-                    {...new THREE.BufferGeometry().setFromPoints(
-                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, length, 0)])} />
-                <lineBasicMaterial color="blue" attach="material" linewidth={linewidth} />
-            </line>
-            <line>
-                <bufferGeometry attach="geometry"
-                    {...new THREE.BufferGeometry().setFromPoints(
-                        [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, length)])} />
-                <lineBasicMaterial color="red" attach="material" linewidth={linewidth} />
-            </line> */}
+      <line>
+        <bufferGeometry attach="geometry"
+          {...new THREE.BufferGeometry().setFromPoints(
+            [new THREE.Vector3(0, 0, 0), new THREE.Vector3(length, 0, 0)])} />
+        <lineBasicMaterial color="green" attach="material" linewidth={linewidth} />
+      </line>
+      <line>
+        <bufferGeometry attach="geometry"
+          {...new THREE.BufferGeometry().setFromPoints(
+            [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, length, 0)])} />
+        <lineBasicMaterial color="blue" attach="material" linewidth={linewidth} />
+      </line>
+      <line>
+        <bufferGeometry attach="geometry"
+          {...new THREE.BufferGeometry().setFromPoints(
+            [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, length)])} />
+        <lineBasicMaterial color="red" attach="material" linewidth={linewidth} />
+      </line>
     </group>
   );
 };
-
-// const CustomAxis = ({ direction, length, color }) => {
-//     const axisRef = useRef();
-
-//     useFrame(() => {
-//         // メッシュの位置や向きに応じて軸を更新するために、useFrameフックを使用します
-//         const mesh = axisRef.current;
-//         const position = mesh.parent.position;
-//         const rotation = mesh.parent.rotation;
-
-//         // 向きを基本軸とした軸を作成します
-//         // const axis = new THREE.Vector3(direction.x, direction.y, direction.z).normalize();
-//         const axis = new THREE.Vector3(rotation.y, rotation.z, rotation.x).normalize();
-//         const arrowHelper = new THREE.ArrowHelper(axis, position, length, new THREE.Color(color));
-
-//         // メッシュの位置や向きに合わせて軸を配置します
-//         arrowHelper.position.copy(position);
-//         arrowHelper.rotation.copy(rotation);
-
-//         // メッシュに軸を追加します
-//         mesh.add(arrowHelper);
-//     });
-
-//     return <group ref={axisRef} />;
-// };
-
 
 export function Sensor({ parents, child, frame_id }) {
   return (<>
@@ -484,11 +407,11 @@ export function QuatanionPoseForm({ transform, parents }) {
   useEffect(() => {
     const joint_list = [...parents, { transform: transform }];
     const child_idx = joint_list.length - 1;
-
+    const rotation_order = "ZYX";
     const list = joint_list.map(({ transform: { x, y, z, roll, pitch, yaw } }) => {
       let link = new THREE.Object3D();
       link.position.set(x, y, z);
-      link.rotation.set(roll, pitch, yaw);
+      link.rotation.set(roll, pitch, yaw, rotation_order);
       return link;
     })
     console.log(list)
@@ -522,7 +445,7 @@ export function QuatanionPoseForm({ transform, parents }) {
   return (<>
     <Box>
       <Typography variant="h6">
-        Quotanion position from base_link
+        Position from base_link
       </Typography>
     </Box>
     <Box display={"flex"}>
@@ -538,6 +461,12 @@ export function QuatanionPoseForm({ transform, parents }) {
         onChange={(evt) => {
           // update_position(evt.target.value, i, j, "z");
         }} />
+    </Box>
+
+    <Box>
+      <Typography variant="h6">
+        Orientation
+      </Typography>
     </Box>
     <Box display={"flex"} sx={{ mt: 1 }}>
       <TextField label={"_x"} value={quo["_x"]} size="small"
