@@ -7,11 +7,12 @@ const lineByLine = require('n-readlines');
 
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const launch_xml_path = `${process.env.workspace}/src/sensor_kit/logiee-s-tc_sensor_kit_launch/logiee-s-tc_sensor_kit_launch/launch/lidar.launch.xml`
+        
+        const launch_xml_path = `${process.env.workspace}/src/sensor_kit/${process.env.sensor_model}_launch/${process.env.sensor_model}_launch/launch/lidar.launch.xml`
         const xml = fs.readFileSync(launch_xml_path, "utf8");
         var json = convert.xml2json(xml, { compact: true, spaces: 0 });
 
-        const pointcloud_preprocessor_path = `${process.env.workspace}/src/sensor_kit/logiee-s-tc_sensor_kit_launch/logiee-s-tc_sensor_kit_launch/launch/pointcloud_preprocessor.launch.py`
+        const pointcloud_preprocessor_path = `${process.env.workspace}/src/sensor_kit/${process.env.sensor_model}_launch/${process.env.sensor_model}_launch/launch/pointcloud_preprocessor.launch.py`
 
         const liner = new lineByLine(pointcloud_preprocessor_path);
         let line;

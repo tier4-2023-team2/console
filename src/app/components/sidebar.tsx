@@ -38,14 +38,14 @@ export default function BasicList({ static_component_size, window_size }) {
                     <ListItemIcon>
                         <SendIcon />
                     </ListItemIcon>
-                    <ListItemText primary="System" />
+                    <ListItemText primary="SystemConfiguration" />
                 </ListItemButton>
-                <ListItemButton href="/build">
+                {/* <ListItemButton href="/build">
                     <ListItemIcon>
                         <SendIcon />
                     </ListItemIcon>
                     <ListItemText primary="Build" />
-                </ListItemButton>
+                </ListItemButton> */}
                 <ListItemButton href="/vehicle">
                     <ListItemIcon>
                         <DraftsIcon />
@@ -67,7 +67,7 @@ export default function BasicList({ static_component_size, window_size }) {
                             </ListItemIcon>
                             <ListItemText primary="LiDAR" />
                         </ListItemButton>
-                        <ListItemButton sx={{ pl: 4 }}>
+                        {/* <ListItemButton sx={{ pl: 4 }}>
                             <ListItemIcon>
                                 <StarBorder />
                             </ListItemIcon>
@@ -78,21 +78,21 @@ export default function BasicList({ static_component_size, window_size }) {
                                 <StarBorder />
                             </ListItemIcon>
                             <ListItemText primary="IMU" />
-                        </ListItemButton>
+                        </ListItemButton> */}
                     </List>
                 </Collapse>
                 <ListItemButton href="/tf">
                     <ListItemIcon>
                         <DraftsIcon />
                     </ListItemIcon>
-                    <ListItemText primary="TF" />
+                    <ListItemText primary="Sensor TF tree" />
                 </ListItemButton>
-                <ListItemButton href="/launcher">
+                {/* <ListItemButton href="/launcher">
                     <ListItemIcon>
                         <DraftsIcon />
                     </ListItemIcon>
                     <ListItemText primary="Launcher" />
-                </ListItemButton>
+                </ListItemButton> */}
             </List>
         </Box >
     );

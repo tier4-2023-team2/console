@@ -1,5 +1,5 @@
 "use client"
-import { Box, Checkbox, Collapse, FormLabel, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Collapse, FormControl, FormLabel, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as React from 'react';
@@ -21,7 +21,8 @@ import * as THREE from "three"
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { blue, green, red } from '@mui/material/colors';
-
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 
 const MERMAID_HEADER = "graph TD;"
 
@@ -235,9 +236,46 @@ export default function TF() {
     </>);
   }
 
+  const PoseForm = ({ transform, frame_id, parents, update_handler }) => {
+    const [form, set_form] = useState(transform);
+    const [transform2, set_transform2] = useState(transform);
+    useEffect(() => {
+    }, [form]);
 
-  const PoseForm = ({ transform, frame_id, parents }) => {
+    const update = () => {
+      const valid = Object.keys(form).every((ele) => {
+        return isFinite(parseFloat(form[ele]));
+      })
+      if (valid) {
+        const new_form = {
+          x: form.x,
+          y: form.y,
+          z: form.z,
+          roll: form.roll,
+          pitch: form.pitch,
+          yaw: form.yaw,
+        };
+        set_form(new_form)
+        set_transform2(new_form);
+        update_handler(new_form, frame_id, parents);
+      }
+    }
+
     return (<>
+      <Box>
+        <Typography variant="h6">
+          frame_id : {frame_id}
+        </Typography>
+      </Box>
+      <Box>
+        <TextField size="small" label="Tree Structure" fullWidth InputProps={{
+          readOnly: true,
+        }}
+          defaultValue={[...parents, { frame_id: frame_id }].map((ele, idx) => {
+            return `${ele.frame_id}`
+          }).join(" > ")}
+        />
+      </Box>
 
       <Box>
         <Typography variant="h6">
@@ -245,34 +283,57 @@ export default function TF() {
         </Typography>
       </Box>
       <Box display={"flex"}>
-        <TextField label={"x"} value={transform["x"]} size="small"
+        <TextField label={"x"} value={form["x"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "x");
+            set_form({
+              ...form,
+              x: evt.target.value
+            });
           }} />
-        <TextField label={"y"} value={transform["y"]} size="small"
+        <TextField label={"y"} value={form["y"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "y");
+            set_form({
+              ...form,
+              y: evt.target.value
+            });
           }} />
-        <TextField label={"z"} value={transform["z"]} size="small"
+        <TextField label={"z"} value={form["z"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "z");
+            set_form({
+              ...form,
+              z: evt.target.value
+            });
           }} />
       </Box>
       <Box display={"flex"} sx={{ mt: 1 }}>
-        <TextField label={"roll"} value={transform["roll"]} size="small"
+        <TextField label={"roll"} value={form["roll"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "roll");
+            set_form({
+              ...form,
+              roll: evt.target.value
+            });
           }} />
-        <TextField label={"pitch"} value={transform["pitch"]} size="small"
+        <TextField label={"pitch"} value={form["pitch"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "pitch");
+            set_form({
+              ...form,
+              pitch: evt.target.value
+            });
           }} />
-        <TextField label={"yaw"} value={transform["yaw"]} size="small"
+        <TextField label={"yaw"} value={form["yaw"]} size="small"
           onChange={(evt) => {
-            // update_position(evt.target.value, i, j, "yaw");
+            set_form({
+              ...form,
+              yaw: evt.target.value
+            });
           }} />
       </Box>
-      <QuatanionPoseForm transform={transform} parents={parents} />
+      <Box>
+        <Box display={"flex"} sx={{ mt: 1 }} className="justify-end">
+          <Button onClick={() => { update() }}> Update </Button>
+        </Box>
+      </Box>
+      <QuatanionPoseForm transform={transform2} parents={parents} />
     </>);
   }
 
@@ -281,11 +342,18 @@ export default function TF() {
       {children.map((ele, idx) => {
         return (
           <TableRow key={`sensor_link_grandchild_${key_idx}_${idx}`} onClick={() => click_handler(ele, [...parent])}>
-            <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, key_idx, idx) }} /></TableCell>
+            <TableCell><Checkbox checked={ele.view} onClick={(evt) => {
+              update_check(!ele.view, key_idx, idx);
+              evt.stopPropagation();
+            }} /></TableCell>
             <TableCell></TableCell>
             <TableCell>
-              <Box>{ele.frame_id}</Box>
-              <Box>(delete frame)</Box>
+              <Box display={"flex"}>
+                <Typography sx={{ py: "8px" }}>{ele.frame_id}</Typography>
+                <IconButton onClick={(evt) => { evt.stopPropagation() }}>
+                  <HighlightOffIcon />
+                </IconButton>
+              </Box>
             </TableCell>
             <TableCell>
               <TransFormCell frame_id={ele.frame_id} transform={ele.transform} i={key_idx} j={idx} />
@@ -301,6 +369,7 @@ export default function TF() {
   }, [pos_data])
 
   const click_handler = (target, parents_id) => {
+    console.log(target, parents_id)
     if (parents_id.length === 0) {
       set_pos_data(sensor_link_map.find((ele, idx) => {
         set_parents([DEFAULT_POSE]);
@@ -318,11 +387,69 @@ export default function TF() {
     }
   }
 
+  useEffect(() => {
+    if (pos_data !== "base_link") {
+
+    }
+  }, [sensor_link_map]);
+
+  const update_handler = React.useCallback((form, frame_id, parents) => {
+    if (parents.length === 1) {
+      const new_link = sensor_link_map.map((ele) => {
+        if (frame_id === ele.frame_id) {
+          return {
+            ...ele,
+            transform: form
+          }
+        }
+        return ele;
+      });
+      set_sensor_link_map(new_link);
+      set_pos_data(new_link.find((ele, idx) => {
+        set_parents([DEFAULT_POSE]);
+        return ele.frame_id === frame_id;
+      }));
+    } else if (parents.length === 2) {
+      const new_link = sensor_link_map.map((ele) => {
+        if (ele.children === undefined) {
+          return ele;
+        }
+        return {
+          ...ele,
+          children: ele.children.map((ele2) => {
+            console.log(frame_id, ele2.frame_id)
+            if (frame_id === ele2.frame_id) {
+              return {
+                ...ele2,
+                transform: form
+              }
+            }
+            return ele2;
+          })
+        }
+      })
+      set_sensor_link_map(new_link);
+      const new_pos = new_link.find((ele, idx) => {
+        return parents.find((e) => {
+          set_parents([DEFAULT_POSE, ele]);
+          return e.frame_id === ele.frame_id;
+        });
+      }).children.find((ele) => {
+        return frame_id === ele.frame_id;
+      });
+      set_pos_data(new_pos);
+    }
+
+  }, [sensor_link_map]);
+
   return (<>
     <Grid container suppressHydrationWarning={true}>
       <Grid>
+        <Box>
+          <Button>Upload</Button>
+        </Box>
         <Box display="flex">
-          <Box sx={{ width: 900, height: 800, overflowY: "scroll" }} >
+          <Box sx={{ width: 800, height: 800, overflowY: "scroll" }} >
             <TableContainer component={Paper}>
               <Table aria-label="simple table" size="small" >
                 <TableHead>
@@ -334,7 +461,10 @@ export default function TF() {
                   </TableRow>
                   <TableRow>
                     <TableCell>
-                      <Checkbox checked={check_all} onClick={() => { set_check_all(!check_all) }} />
+                      <Checkbox checked={check_all} onClick={(evt) => {
+                        set_check_all(!check_all);
+                        evt.stopPropagation();
+                      }} />
                     </TableCell>
                     <TableCell align="center">prarent</TableCell>
                     <TableCell align="center">child</TableCell>
@@ -346,10 +476,32 @@ export default function TF() {
                     if (ele.children === undefined) {
                       return (
                         <TableRow key={`sensor_link_${idx}`} onClick={() => click_handler(ele, [])}>
-                          <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, idx) }} /></TableCell>
+                          <TableCell><Checkbox checked={ele.view}
+                            onClick={(evt) => {
+                              update_check(!ele.view, idx);
+                              evt.stopPropagation();
+                            }} /></TableCell>
                           <TableCell>
-                            <Box>{ele.frame_id}</Box>
-                            <Box>(append_child)</Box>
+                            <Box>
+                              <Typography sx={{ py: "8px" }}>{ele.frame_id}</Typography>
+                              <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" sx={{ p: 0, m: 0 }}>
+                                <InputLabel htmlFor="new_link_name">new_link_name</InputLabel>
+                                <OutlinedInput
+                                  id="new_link_name"
+                                  type={'text'}
+                                  endAdornment={
+                                    <InputAdornment position="end">
+                                      <IconButton
+                                        edge="end"
+                                      >
+                                        <AddCircleOutlineRoundedIcon />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  }
+                                  label="new_link_name"
+                                />
+                              </FormControl>
+                            </Box>
                           </TableCell>
                           <TableCell></TableCell>
                           <TableCell>
@@ -362,8 +514,24 @@ export default function TF() {
                           <TableRow key={`sensor_link_${idx}`} onClick={() => click_handler(ele, [])}>
                             <TableCell><Checkbox checked={ele.view} onClick={() => { update_check(!ele.view, idx) }} /></TableCell>
                             <TableCell>
-                              <Box>{ele.frame_id}</Box>
-                              <Box>(append_child)</Box>
+                              <Box>
+                                <Typography sx={{ py: "8px" }}>{ele.frame_id}</Typography>
+                                <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" sx={{ p: 0, m: 0 }}>
+                                  <InputLabel htmlFor="new_link_name">new_link_name</InputLabel>
+                                  <OutlinedInput
+                                    id="new_link_name"
+                                    type={'text'}
+                                    endAdornment={
+                                      <InputAdornment position="end">
+                                        <IconButton edge="end"                                        >
+                                          <AddCircleOutlineRoundedIcon />
+                                        </IconButton>
+                                      </InputAdornment>
+                                    }
+                                    label="new_link_name"
+                                  />
+                                </FormControl>
+                              </Box>
                             </TableCell>
                             <TableCell></TableCell>
                             <TableCell>
@@ -377,25 +545,41 @@ export default function TF() {
                   })}
                   <TableRow>
                     <TableCell></TableCell>
-                    <TableCell>
-                      <Box>(append_parent)</Box>
+                    <TableCell >
+                      <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" sx={{ p: 0, m: 0 }}>
+                        <InputLabel htmlFor="new_link_name">new_link_name</InputLabel>
+                        <OutlinedInput
+                          id="new_link_name"
+                          type={'text'}
+                          endAdornment={
+                            <InputAdornment position="end">
+                              <IconButton
+                                edge="end"
+                              >
+                                <AddCircleOutlineRoundedIcon />
+                              </IconButton>
+                            </InputAdornment>
+                          }
+                          label="new_link_name"
+                        />
+                      </FormControl>
                     </TableCell>
-                    <TableCell></TableCell>
+                    <TableCell>
+
+                    </TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
           <Box sx={{ height: "100%", width: "630px" }}>
-            <Box sx={{ height: "100%", width: "inherit" }}>
+            {/* <Box sx={{ height: "100%", width: "inherit" }}>
               <Mermaid chart={mermaid_txt} />
-            </Box>
+            </Box> */}
             <Box sx={{ height: "400px", width: "inherit" }}>
               {Object.keys(vehicle_data).length > 0 &&
                 <Canvas>
-                  {/* <SceneRoot> */}
                   <MyAxes />
                   <gridHelper args={[5, 10]} />
                   <gridHelper args={[5, 10]} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
@@ -424,23 +608,17 @@ export default function TF() {
                       })}
                     </>);
                   })}
-                  {/* </SceneRoot> */}
                 </Canvas>
               }
             </Box>
             <Box>
               <Box>
-                <Checkbox checked={vehicle_view} onClick={() => { set_vehicle_view(!vehicle_view) }} />
+                <Checkbox checked={vehicle_view} onClick={(evt) => {
+                  set_vehicle_view(!vehicle_view);
+                }} />
               </Box>
-              {/* <Box>TODO:</Box>
-              <Box>* UMLの図をxacroのマクロに沿ったsuffixをつける</Box>
-              <Box>* 3D図側にセンサーの取り付け</Box>
-              <Box>* 値の反映</Box>
-              <Box>* 保存</Box>
-              <Box>* テーブルからセンサーのCRUD</Box>
-              <Box>* xacroファイルペースト用テキスト作成</Box> */}
               <Box>
-                <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} parents={parents} />
+                <PoseForm transform={pos_data.transform} frame_id={pos_data.frame_id} parents={parents} update_handler={update_handler} />
               </Box>
             </Box>
           </Box>

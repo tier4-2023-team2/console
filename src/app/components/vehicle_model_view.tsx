@@ -1,18 +1,19 @@
 "use client";
 
-import { Box, TextField, Typography, linkClasses } from "@mui/material";
+import { Box, Grid, TextField, Typography, linkClasses } from "@mui/material";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { DoubleSide } from 'three';
 import { Cylinder, OrbitControls } from '@react-three/drei'
 import * as THREE from "three"
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useEffect } from "react";
 import { useLoader } from '@react-three/fiber';
 import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader';
 
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { useGLTF } from "@react-three/drei";
+import { blue, green, red } from "@mui/material/colors";
 
 //  {/* 本来 */}
 //   {/* position = {[x, y, z]} */}
@@ -414,7 +415,6 @@ export function QuatanionPoseForm({ transform, parents }) {
       link.rotation.set(roll, pitch, yaw, rotation_order);
       return link;
     })
-    console.log(list)
 
     for (var i = 0; i < list.length - 1; i++) {
       list[i].add(list[i + 1]);
@@ -442,6 +442,7 @@ export function QuatanionPoseForm({ transform, parents }) {
     set_abs_rotation(qua2);
 
   }, [transform]);
+
   return (<>
     <Box>
       <Typography variant="h6">
@@ -449,18 +450,15 @@ export function QuatanionPoseForm({ transform, parents }) {
       </Typography>
     </Box>
     <Box display={"flex"}>
-      <TextField label={"x"} value={pos["x"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "x");
-        }} />
-      <TextField label={"y"} value={pos["y"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "y");
-        }} />
-      <TextField label={"z"} value={pos["z"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "z");
-        }} />
+      <TextField label={"x"} value={pos["x"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
+      <TextField label={"y"} value={pos["y"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
+      <TextField label={"z"} value={pos["z"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
     </Box>
 
     <Box>
@@ -469,22 +467,18 @@ export function QuatanionPoseForm({ transform, parents }) {
       </Typography>
     </Box>
     <Box display={"flex"} sx={{ mt: 1 }}>
-      <TextField label={"_x"} value={quo["_x"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "roll");
-        }} />
-      <TextField label={"_y"} value={quo["_y"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "roll");
-        }} />
-      <TextField label={"_z"} value={quo["_z"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "roll");
-        }} />
-      <TextField label={"_w"} value={quo["_w"]} size="small"
-        onChange={(evt) => {
-          // update_position(evt.target.value, i, j, "roll");
-        }} />
+      <TextField label={"_x"} value={quo["_x"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
+      <TextField label={"_y"} value={quo["_y"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
+      <TextField label={"_z"} value={quo["_z"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
+      <TextField label={"_w"} value={quo["_w"]} size="small" InputProps={{
+        readOnly: true,
+      }} />
     </Box>
   </>);
 }
