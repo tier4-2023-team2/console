@@ -40,12 +40,12 @@ export default function BasicList({ static_component_size, window_size }) {
                     </ListItemIcon>
                     <ListItemText primary="SystemConfiguration" />
                 </ListItemButton>
-                {/* <ListItemButton href="/build">
+                <ListItemButton href="/build">
                     <ListItemIcon>
                         <SendIcon />
                     </ListItemIcon>
                     <ListItemText primary="Build" />
-                </ListItemButton> */}
+                </ListItemButton>
                 <ListItemButton href="/vehicle">
                     <ListItemIcon>
                         <DraftsIcon />
