@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, create environment file.
 
 ```
-cd  console_app/
+cd  console/
 touch .env
 ```
 and write your workspace infomation.
